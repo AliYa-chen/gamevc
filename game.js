@@ -8,7 +8,9 @@ const params = new URLSearchParams(window.location.search);
 
 // Base URLs
 const replaceFetch = (str) => str.replace("https://cdn.dos.zone/vcsky/", "vcsky/")
-const replaceBR = "https://cdn.nbcnm.cn/vcbr/"
+// const replaceBR = "https://cdn.nbcnm.cn/vcbr/"
+const replaceBR = "https://br.cdn.dos.zone/vcsky/"
+
 
 // Configurable mode - show settings UI before play
 //const configurableMode = params.get('configurable') === "1";
