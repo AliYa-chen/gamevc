@@ -19,3 +19,16 @@
 .animate-blob {
     animation: blob 7s infinite;
 }
+
+
+.emscripten {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    image-rendering: optimizeSpeed;
+    image-rendering: optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+}

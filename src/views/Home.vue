@@ -1,12 +1,16 @@
 <script setup>
 import Sidebar from '@/components/Sidebar.vue'
 import GameShowcase from '@/components/GameShowcase.vue'
+import { useGameStore } from '@/stores/game'
+
+const game = useGameStore()
+import GameCanvas from '@/components/GameCanvas.vue'
 
 const imgSrc = new URL('@/assets/img/Vice_City_1.jpg', import.meta.url).href
 </script>
 
 <template>
-  <div class="font-sans antialiased bg-[#050505]" data-is-touch="0" data-state-menu="1">
+  <div v-if="!game.started" class="font-sans antialiased bg-[#050505]" data-is-touch="0" data-state-menu="1">
     <main class="relative min-h-screen overflow-hidden bg-[#050505] text-white selection:bg-pink-500/30">
       <!-- 背景 -->
       <div class="pointer-events-none fixed inset-0 z-0">
@@ -28,4 +32,7 @@ const imgSrc = new URL('@/assets/img/Vice_City_1.jpg', import.meta.url).href
       </section>
     </main>
   </div>
+  <template v-else>
+    <GameCanvas />
+  </template>
 </template>
