@@ -27,7 +27,7 @@ const game = useGameStore()
         </div>
 
         <!-- 百分比 -->
-        <p class="mt-3 text-xs text-white/50">
+        <p class="mt-3 text-xs text-white/50" >
             {{ Math.floor(game.progress) }}%
         </p>
     </div>

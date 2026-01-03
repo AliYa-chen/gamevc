@@ -32,7 +32,5 @@ const imgSrc = new URL('@/assets/img/Vice_City_1.jpg', import.meta.url).href
       </section>
     </main>
   </div>
-  <template v-else>
-    <GameCanvas />
-  </template>
+  <GameCanvas v-show="game.started" />
 </template>
