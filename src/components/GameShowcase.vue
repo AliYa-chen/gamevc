@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useGameStore } from '@/stores/game'
+import LoadingGame from './LoadingGame.vue';
 
 const game = useGameStore()
 
@@ -87,6 +88,8 @@ onMounted(() => {
                 ▶ 开始游戏
               </button>
             </div>
+
+            <LoadingGame />
           </a>
 
 
