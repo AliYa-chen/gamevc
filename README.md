@@ -7,7 +7,16 @@ This project supports one click deployment of EdgeOnePages; Support pure Nodejs 
 Live Demo: https://gtavc.nbcnm.cn
 
 
-[![Use EdgeOne Pages to deploy](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/pages/new?repository-url=https://github.com/AliYa-chen/gamevc)
+## There are currently three branches
+
+`main branch`: Dev code, with frequent updates
+
+`prod branch`: It is the branch where I am currently running Demo link, deploying vcbr game files using CDN.
+
+`vcbr branch`: contains vcbr game mapping files; It's a complete project.
+
+
+[![Use EdgeOne Pages to deploy](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/pages/new?repository-url=https%3A%2F%2Fgithub.com%2FAliYa-chen%2Fgamevc%2Ftree%2Fprod)
 
 ## Getting Started
 
