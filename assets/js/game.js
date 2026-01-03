@@ -54,7 +54,6 @@ const translations = {
         clickToContinue: "点击继续...",
         enterJsDosKey: "输入js-dos密钥（5位长度）",
         ruTranslate: "",
-        demoOffDisclaimer: "因该项目人气超出预期，产生了高额流量成本；同时为避免因版权方投诉导致项目被下架的风险，我们已关闭演示版功能。你仍可通过提供原版游戏资源来运行完整版。",
         configLanguage: "语言：",
         configCheats: "作弊功能（F3键）",
         configFullscreen: "全屏模式",
@@ -92,9 +91,7 @@ const translations = {
         enterKey: "enter your key",
         clickToContinue: "Click to continue...",
         enterJsDosKey: "Enter js-dos key (5 len)",
-
         ruTranslate: "",
-        demoOffDisclaimer: "Due to the unexpectedly high popularity of the project, resulting in significant traffic costs, and in order to avoid any risk of the project being shut down due to rights holder claims, we have disabled the demo version. You can still run the full version by providing the original game resources.",
         configLanguage: "Language:",
         configCheats: "Cheats (F3)",
         configFullscreen: "Fullscreen",
@@ -138,7 +135,6 @@ const translations = {
     <a href="https://www.gamesvoice.ru/" target="_blank">GamesVoice</a>
 </div>
 `,
-        demoOffDisclaimer: "В связи с неожиданно высокой популярностью проекта, как следствие — значительными расходами на трафик, а также во избежание рисков закрытия проекта из-за претензий правообладателей, мы отключили возможность запуска демо-версии. При этом вы по-прежнему можете запустить полную версию, предоставив оригинальные ресурсы.",
         configLanguage: "Язык:",
         configCheats: "Читы (F3)",
         configFullscreen: "Полный экран",
@@ -183,23 +179,6 @@ function updateAllTranslations() {
     if (openLocalArchiveLink) {
         openLocalArchiveLink.textContent = t('openLocalArchive');
     }
-        
-    const demoOffDisclaimer = document.getElementById('demo-off-disclaimer');
-    if (demoOffDisclaimer) {
-        demoOffDisclaimer.textContent = haveOriginalGame ? "" : "* " + t('demoOffDisclaimer');
-    }
-    
-    const playDemoText = document.getElementById('play-demo-text');
-    if (playDemoText) playDemoText.textContent = t('playDemoText');
-    
-    const disclaimerText = document.getElementById('disclaimer-text');
-    if (disclaimerText) disclaimerText.textContent = t('disclaimer');
-    
-    const disclaimerSources = document.getElementById('disclaimer-sources');
-    if (disclaimerSources) disclaimerSources.textContent = t('disclaimerSources');
-    
-    const disclaimerCheckboxLabel = document.getElementById('disclaimer-checkbox-label');
-    if (disclaimerCheckboxLabel) disclaimerCheckboxLabel.textContent = t('disclaimerCheckbox');
         
     // Update config panel labels if present
     const configLangLabel = document.getElementById('config-lang-label');
@@ -306,7 +285,6 @@ async function startGame(e) {
     e.stopPropagation();
 
     document.querySelector('.start-container').style.display = 'none';
-    document.querySelector('.disclaimer').style.display = 'none';
 
     const intro = document.querySelector('.intro');
     const introContainer = document.querySelector('.intro-container');
@@ -400,7 +378,6 @@ async function loadGame(data) {
         },
         hotelMission: () => {
             if (!haveOriginalGame) {
-                showWasted();
                 alert(t("cantContinuePlaying"));
                 throw new Error(t("cantContinuePlaying"));
             }
@@ -432,7 +409,7 @@ async function loadGame(data) {
     window.Module = Module;
     const script = document.createElement('script');
     script.async = true;
-    script.src = 'index.js';
+    script.src = '/assets/js/index.js';
     document.body.appendChild(script);
 
     document.body.classList.add('gameIsStarted');
@@ -617,81 +594,28 @@ wrapIDBFS(console.log).addListener({
 const clickToPlayButton = document.getElementById('click-to-play-button');
 clickToPlayButton.textContent = t('clickToPlayDemo');
 clickToPlayButton.classList.add('disabled');
-const demoOffDisclaimer = document.getElementById('demo-off-disclaimer');
-demoOffDisclaimer.textContent = "* " +t('demoOffDisclaimer');
-const playDemoText = document.getElementById('play-demo-text');
-playDemoText.textContent = t('playDemoText');
-const disclaimerText = document.getElementById('disclaimer-text');
-disclaimerText.textContent = t('disclaimer');
-const disclaimerSources = document.getElementById('disclaimer-sources');
-disclaimerSources.textContent = t('disclaimerSources');
-const disclaimerCheckboxLabel = document.getElementById('disclaimer-checkbox-label');
-disclaimerCheckboxLabel.textContent = t('disclaimerCheckbox');
-const disclaimerCheckbox = document.getElementById('disclaimer-checkbox');
+
+
+
 const originalGameFile = document.getElementById('original-game-file');
 
 
 function ownerShipConfirmed() {
     localStorage.setItem('vcsky.haveOriginalGame', 'true');
-    disclaimerCheckbox.checked = true;
     clickToPlayButton.textContent = t('clickToPlayFull');
-    demoOffDisclaimer.textContent = "";
     clickToPlayButton.classList.remove('disabled');
     haveOriginalGame = true;
 };
 
 function ownerShipNotConfirmed() {
     localStorage.removeItem('vcsky.haveOriginalGame');
-    disclaimerCheckbox.checked = false;
     clickToPlayButton.textContent = t('clickToPlayDemo');
-    demoOffDisclaimer.textContent = "* " +t('demoOffDisclaimer');
     haveOriginalGame = false;
     clickToPlayButton.classList.add('disabled');
 };
 
-disclaimerCheckbox.addEventListener('change', async (inputEvent) => {
-    if (inputEvent.target.checked) {
-        if (confirm(t('disclaimerPrompt'))) {
-            originalGameFile.addEventListener('change', async (e) => {
-                try {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const sha256sums = (await (await fetch(replaceFetch("https://cdn.dos.zone/vcsky/sha256sums.txt"))).text()).toLowerCase();
-                        const arrayBuffer = await file.arrayBuffer();
-                        if (window.crypto && window.crypto.subtle) {
-                            const hashBuffer = await window.crypto.subtle.digest('SHA-256', arrayBuffer);
-                            const hashArray = Array.from(new Uint8Array(hashBuffer));
-                            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                            if (sha256sums.indexOf(hashHex) !== -1) {
-                                ownerShipConfirmed();
-                            } else {
-                                ownerShipNotConfirmed();
-                            }
-                        } else {
-                            ownerShipNotConfirmed();
-                        }
-                    } else {
-                        ownerShipNotConfirmed();
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    ownerShipNotConfirmed();
-                }
-            }, { once: true });
-            originalGameFile.click();
-            return;
-        }
-    }
-
-    ownerShipNotConfirmed();
-});
 
 localStorage.getItem('vcsky.haveOriginalGame') === 'true' ? ownerShipConfirmed() : ownerShipNotConfirmed();
-
-function showWasted() {
-    const wastedContainer = document.querySelector('.wasted-container');
-    wastedContainer.hidden = false;
-}
 
 const revc_iniDefault = `
 [VideoMode]

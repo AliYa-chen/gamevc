@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>Grand Theft Auto: Vice City</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body data-is-touch="0" data-state-car="0" data-state-car-gun="0" data-state-gun="0" data-state-bike="0"
+    data-state-menu="1" data-state-cutscene="0" data-state-mobring="0" data-state-job="0"
+    data-state-disable-controls="0" data-state-panzer="0" data-state-car-with-weapon="0" data-state-hunter="0"
+    data-state-scope-mode="0" data-state-scope-gun="0">
+    <div class="intro-container" hidden>
+        <video class="intro" src="/assets/video/intro.mp4">
+        </video>
+
+        <div class="loader-container">
+            <div class="progress-bar-container" id='spinner'>
+                <div class="progress-bar-fill"></div>
+            </div>
+            <div id="status">Downloading...</div>
+            <div>
+                <progress id="progress"></progress>
+            </div>
+        </div>
+    </div>
+
+    <div class="start-container">
+        <div class="button-container">
+
+            <div id="config-panel" class="w-full md:w-auto flex items-center justify-between md:justify-center gap-2 rounded-lg border border-white/15 bg-black/60 px-3 py-2 text-xs md:text-sm text-white transition-all shadow-lg" style="display: none;">
+                <div class="config-option">
+                    <label for="config-lang">
+                        <span id="config-lang-label">Language:</span>
+                        <select id="config-lang"
+                            style="background: rgba(0,0,0,0.3); border: 1px solid #2a1759; color: #fff; padding: 0.3em; border-radius: 0.3em; margin-left: 0.5em;">
+                            <option value="en">English</option>
+                            <option value="ru">Русский</option>
+                            <option value="zh">简体中文</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="config-option">
+                    <label for="config-cheats">
+                        <input type="checkbox" id="config-cheats">
+                        <span id="config-cheats-label">Cheats (F3)</span>
+                    </label>
+                </div>
+                <div class="config-option">
+                    <label for="config-fullscreen">
+                        <input type="checkbox" id="config-fullscreen" checked>
+                        <span id="config-fullscreen-label">Fullscreen</span>
+                    </label>
+                </div>
+                <div class="config-option">
+                    <label for="config-max-fps">
+                        <span id="config-max-fps-label">Max FPS:</span>
+                        <input type="number" id="config-max-fps" min="0" max="240" value="0" style="width: 60px;">
+                        <span id="config-max-fps-unlimited" style="font-size: 0.8em;">(0 = unlimited)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="click-to-play">
+                <button id="click-to-play-button">Click to play</button>
+            </div>
+        </div>
+
+    </div>
+
+    <input type="file" id="original-game-file" hidden>
+
+
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+
+    <div class="touch-controls-wrapper">
+        <div id="move"></div>
+        <div id="look"></div>
+
+        <div class="touch-control radio"></div>
+        <div class="touch-control weapon"></div>
+        <div class="touch-control menu"></div>
+        <div class="touch-control fist"></div>
+        <div class="touch-control drift"></div>
+        <div class="touch-control run"></div>
+        <div class="touch-control car getIn"></div>
+        <div class="touch-control left"></div>
+        <div class="touch-control right"></div>
+        <div class="touch-control jump"></div>
+        <div class="touch-control car getOut"></div>
+        <div class="touch-control camera"></div>
+        <div class="touch-control mobile"></div>
+        <div class="touch-control job"></div>
+        <div class="touch-control horn"></div>
+        <div class="touch-control fireRight"></div>
+        <div class="touch-control fireLeft"></div>
+    </div>
+    <script type='text/javascript' src="/assets/js/GamepadEmulator.js"></script>
+    <script type='text/javascript' src="/assets/js/idbfs.js"></script>
+    <script type='text/javascript' src="/assets/js/game.js"></script>
+</body>
+
+</html>
