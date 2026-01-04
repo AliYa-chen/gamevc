@@ -1,3 +1,9 @@
+*:focus {
+  outline: none; /* 移除默认的轮廓 */
+  box-shadow: none; /* 移除可能的阴影效果 */
+}
+
+
 @keyframes blob {
     0% {
         transform: translate(0) scale(1);

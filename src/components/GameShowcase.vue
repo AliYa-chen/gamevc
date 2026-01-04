@@ -85,7 +85,7 @@ onMounted(() => {
              shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)]
              transition-all duration-300
              active:scale-95" @click="game.startGame()">
-                ▶ 开始游戏
+                ▶ {{ game.t('StartGame') }}
               </button>
             </div>
 
@@ -113,7 +113,7 @@ onMounted(() => {
                   GTAVC
                 </h3>
                 <p class="text-sm text-white/70">
-                  在线式游戏
+                  {{ game.t('OnlineGaming') }}
                 </p>
               </div>
 
