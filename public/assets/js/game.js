@@ -1,10 +1,10 @@
-var statusElement = document.getElementById("status");
-var progressElement = document.getElementById("progress");
-var spinnerElement = document.getElementById('spinner');
 var data_content;
 var wasm_content;
 
 const params = new URLSearchParams(window.location.search);
+
+window.VCSKY = window.VCSKY || {};
+
 
 // Base URLs
 const replaceFetch = (str) => str.replace("https://cdn.dos.zone/vcsky/", "vcsky/")
@@ -54,7 +54,6 @@ const translations = {
         clickToContinue: "点击继续...",
         enterJsDosKey: "输入js-dos密钥（5位长度）",
         ruTranslate: "",
-        demoOffDisclaimer: "因该项目人气超出预期，产生了高额流量成本；同时为避免因版权方投诉导致项目被下架的风险，我们已关闭演示版功能。你仍可通过提供原版游戏资源来运行完整版。",
         configLanguage: "语言：",
         configCheats: "作弊功能（F3键）",
         configFullscreen: "全屏模式",
@@ -92,9 +91,7 @@ const translations = {
         enterKey: "enter your key",
         clickToContinue: "Click to continue...",
         enterJsDosKey: "Enter js-dos key (5 len)",
-
         ruTranslate: "",
-        demoOffDisclaimer: "Due to the unexpectedly high popularity of the project, resulting in significant traffic costs, and in order to avoid any risk of the project being shut down due to rights holder claims, we have disabled the demo version. You can still run the full version by providing the original game resources.",
         configLanguage: "Language:",
         configCheats: "Cheats (F3)",
         configFullscreen: "Fullscreen",
@@ -138,7 +135,6 @@ const translations = {
     <a href="https://www.gamesvoice.ru/" target="_blank">GamesVoice</a>
 </div>
 `,
-        demoOffDisclaimer: "В связи с неожиданно высокой популярностью проекта, как следствие — значительными расходами на трафик, а также во избежание рисков закрытия проекта из-за претензий правообладателей, мы отключили возможность запуска демо-версии. При этом вы по-прежнему можете запустить полную версию, предоставив оригинальные ресурсы.",
         configLanguage: "Язык:",
         configCheats: "Читы (F3)",
         configFullscreen: "Полный экран",
@@ -159,91 +155,69 @@ const translations = {
 };
 
 var currentLanguage = navigator.language.split("-")[0] === "ru" ? "ru" : "en";
-    if (params.get("lang") === "ru") {
-        currentLanguage = "ru";
-    }
-    if (params.get("lang") === "en") {
-        currentLanguage = "en";
-    }
-    currentLanguage = 'zh'
-    
+if (params.get("lang") === "ru") {
+    currentLanguage = "ru";
+}
+if (params.get("lang") === "en") {
+    currentLanguage = "en";
+}
+currentLanguage = 'zh'
+
 window.t = function (key) {
     return translations[currentLanguage][key];
 }
 
 // Function to update all translated texts on the page
 function updateAllTranslations() {
-    
-    const clickToPlayButton = document.getElementById('click-to-play-button');
-    if (clickToPlayButton) {
-        clickToPlayButton.textContent = haveOriginalGame ? t('clickToPlayFull') : t('clickToPlayDemo');
-    }
-    
+
     const openLocalArchiveLink = document.getElementById('open-local-archive-link');
     if (openLocalArchiveLink) {
         openLocalArchiveLink.textContent = t('openLocalArchive');
     }
-        
-    const demoOffDisclaimer = document.getElementById('demo-off-disclaimer');
-    if (demoOffDisclaimer) {
-        demoOffDisclaimer.textContent = haveOriginalGame ? "" : "* " + t('demoOffDisclaimer');
-    }
-    
-    const playDemoText = document.getElementById('play-demo-text');
-    if (playDemoText) playDemoText.textContent = t('playDemoText');
-    
-    const disclaimerText = document.getElementById('disclaimer-text');
-    if (disclaimerText) disclaimerText.textContent = t('disclaimer');
-    
-    const disclaimerSources = document.getElementById('disclaimer-sources');
-    if (disclaimerSources) disclaimerSources.textContent = t('disclaimerSources');
-    
-    const disclaimerCheckboxLabel = document.getElementById('disclaimer-checkbox-label');
-    if (disclaimerCheckboxLabel) disclaimerCheckboxLabel.textContent = t('disclaimerCheckbox');
-        
+
     // Update config panel labels if present
     const configLangLabel = document.getElementById('config-lang-label');
     if (configLangLabel) configLangLabel.textContent = t('configLanguage');
-    
+
     const configCheatsLabel = document.getElementById('config-cheats-label');
     if (configCheatsLabel) configCheatsLabel.textContent = t('configCheats');
-    
+
     const configFullscreenLabel = document.getElementById('config-fullscreen-label');
     if (configFullscreenLabel) configFullscreenLabel.textContent = t('configFullscreen');
-    
+
     const configMaxFpsLabel = document.getElementById('config-max-fps-label');
     if (configMaxFpsLabel) configMaxFpsLabel.textContent = t('configMaxFps');
-    
+
     const configMaxFpsUnlimited = document.getElementById('config-max-fps-unlimited');
     if (configMaxFpsUnlimited) configMaxFpsUnlimited.textContent = t('configUnlimited');
-    
+
     // ========== 新增：配置表格翻译逻辑（和原有代码风格保持一致） ==========
     // 1. 渲染表格表头
     const tableHeaderItem = document.getElementById('table-header-item');
     if (tableHeaderItem) tableHeaderItem.textContent = t('tableHeaderItem');
-    
+
     const tableHeaderRange = document.getElementById('table-header-range');
     if (tableHeaderRange) tableHeaderRange.textContent = t('tableHeaderRange');
-    
+
     const tableHeaderDesc = document.getElementById('table-header-desc');
     if (tableHeaderDesc) tableHeaderDesc.textContent = t('tableHeaderDesc');
 
     // 2. 渲染表格配置项说明
     const configDescLang = document.getElementById('config-desc-lang');
     if (configDescLang) configDescLang.textContent = t('configLangDesc');
-    
+
     const configDescCheats = document.getElementById('config-desc-cheats');
     if (configDescCheats) configDescCheats.textContent = t('configCheatsDesc');
-    
+
     const configDescOriginalGame = document.getElementById('config-desc-original-game');
     if (configDescOriginalGame) configDescOriginalGame.textContent = t('configOriginalGameDesc');
-    
+
     const configDescFullscreen = document.getElementById('config-desc-fullscreen');
     if (configDescFullscreen) configDescFullscreen.textContent = t('configFullscreenDesc');
-    
+
     const configDescMaxFps = document.getElementById('config-desc-max-fps');
     if (configDescMaxFps) configDescMaxFps.textContent = t('configMaxFpsDesc');
-    
+
     const configDescConfigurable = document.getElementById('config-desc-configurable');
     if (configDescConfigurable) configDescConfigurable.textContent = t('configConfigurableDesc');
     // ========== 表格翻译逻辑结束 ==========
@@ -276,15 +250,24 @@ async function loadData() {
     let chunks = [];
     while (true) {
         const { done, value } = await reader.read();
-        if (done) {
-            break;
-        }
+        if (done) break;
+
         chunks.push(value);
         receivedLength += value.length;
+
+        const percent = Math.min(
+            100,
+            Math.floor((receivedLength / dataSize) * 100)
+        );
+
+        // ⭐ 向 Vue 上报真实进度
+        window.VCSKY.onProgress?.(percent);
+
         if (typeof setStatus === "function") {
             setStatus(`Downloading...(${receivedLength}/${dataSize})`);
         }
     }
+
     let buffer = new Uint8Array(receivedLength);
     let position = 0;
     for (let chunk of chunks) {
@@ -303,29 +286,37 @@ async function loadData() {
 };
 
 async function startGame(e) {
-    e.stopPropagation();
+    if (e?.stopPropagation) e.stopPropagation();
 
-    document.querySelector('.start-container').style.display = 'none';
-    document.querySelector('.disclaimer').style.display = 'none';
+    const startContainer = document.querySelector('.start-container');
+    if (startContainer) startContainer.style.display = 'none';
 
     const intro = document.querySelector('.intro');
     const introContainer = document.querySelector('.intro-container');
     const loaderContainer = document.querySelector('.loader-container');
-    document.querySelector('.click-to-play').style.display = 'none';
-    loaderContainer.style.display = "flex";
-    introContainer.hidden = false;
-    intro.play();
+
+    if (loaderContainer) loaderContainer.style.display = "flex";
+    if (introContainer) introContainer.hidden = false;
+
+    if (intro) {
+        intro.play?.();
+    }
 
     const dataBuffer = await loadData();
-    spinnerElement.hidden = true;
+
     setStatus(t("clickToContinue"));
-    introContainer.hidden = false;
-    introContainer.style.cursor = 'pointer';
+
+    if (introContainer) {
+        introContainer.hidden = false;
+        introContainer.style.cursor = 'pointer';
+    }
+
     const clickHandler = () => {
-        intro.pause();
-        introContainer.style.display = 'none';
+        intro?.pause?.();
+        if (introContainer) introContainer.style.display = 'none';
         loadGame(dataBuffer);
     };
+
     if (isMobile) {
         window.addEventListener('pointerup', clickHandler, { once: true });
     } else {
@@ -333,29 +324,17 @@ async function startGame(e) {
     }
 }
 
+
 function setStatus(text) {
-    if (!text) {
-        progressElement.hidden = true;
-        spinnerElement.hidden = true;
-        return;
-    }
-    const match = text.match(/(.+)\((\d+\.?\d*)\/(\d+)\)/);
-    if (match) {
-        const [current, total] = match.slice(2, 4).map(Number);
-        const percent = (current / total * 100).toFixed(0);
-        statusElement.textContent = t("downloading") + ` ${percent}%`;
-        progressElement.value = current;
-        progressElement.max = total;
-        progressElement.hidden = false;
-        spinnerElement.hidden = false;
-        const progressBarFill = spinnerElement.querySelector('.progress-bar-fill');
-        if (progressBarFill) {
-            progressBarFill.style.width = percent + '%';
-        }
-    } else {
-        statusElement.textContent = text;
-    }
-};
+  if (!text) return
+
+  // ⭐ 关键：告诉 Vue「可以进入游戏了」
+  if (text === t("clickToContinue")) {
+    window.VCSKY.onReady?.()
+    return
+  }
+}
+
 
 async function loadGame(data) {
     var Module = {
@@ -387,7 +366,7 @@ async function loadGame(data) {
         canvas: function () {
             const canvas = document.getElementById('canvas');
             canvas.addEventListener('webglcontextlost', (e) => {
-                statusElement.textContent = 'WebGL context lost. Please reload the page.';
+                alert("WebGL context lost. Please reload the page.")
                 e.preventDefault();
             });
             return canvas;
@@ -400,7 +379,6 @@ async function loadGame(data) {
         },
         hotelMission: () => {
             if (!haveOriginalGame) {
-                showWasted();
                 alert(t("cantContinuePlaying"));
                 throw new Error(t("cantContinuePlaying"));
             }
@@ -417,7 +395,6 @@ async function loadGame(data) {
     };
     window.onerror = (message) => {
         Module.setStatus(`Error: ${message}`);
-        spinnerElement.hidden = true;
     };
     Module.arguments = window.location.search
         .slice(1)
@@ -432,7 +409,7 @@ async function loadGame(data) {
     window.Module = Module;
     const script = document.createElement('script');
     script.async = true;
-    script.src = 'index.js';
+    script.src = '/assets/js/index.js';
     document.body.appendChild(script);
 
     document.body.classList.add('gameIsStarted');
@@ -538,47 +515,6 @@ async function loadGame(data) {
     }]);
 }
 
-const clickToPlay = document.querySelector('.click-to-play');
-const clickLink = clickToPlay.querySelector('button');
-clickToPlay.addEventListener('click', (e) => {
-    if (!haveOriginalGame) {
-        //     alert(t('demoAlert'));
-        alert(t('demoOffDisclaimer'));
-        return;
-    }
-    if (e.target === clickToPlay || e.target === clickLink) {
-        startGame(e);
-        if (!isMobile && autoFullScreen) {
-            if (window.top === window) {
-                document.body.requestFullscreen(document.documentElement);
-            } else {
-                window.top.postMessage({
-                    event: 'request-fullscreen',
-                }, '*');
-            }
-            function lockMouseIfNeeded() {
-                if (!document.pointerLockElement && typeof Module !== 'undefined' && Module.canvas) {
-                    Module.canvas.requestPointerLock({
-                        unadjustedMovement: true,
-                    }).catch(() => {
-                        console.warn('Failed to lock in unadjusted movement mode');
-                        Module.canvas.requestPointerLock().catch(() => {
-                            console.error('Failed to lock in default mode');
-                        });
-                    });
-                }
-            }
-            document.addEventListener("mousedown", lockMouseIfNeeded, { capture: true });
-            if (navigator.keyboard && navigator.keyboard.lock) {
-                navigator.keyboard.lock(["Escape", "KeyW"]);
-            }
-        }
-    } else if (window.top !== window) {
-        window.top.postMessage({
-            event: 'request-fullscreen',
-        }, '*');
-    }
-});
 
 const savesMountPoint = "/vc-assets/local/userfiles";
 const savesFile = "vcsky.saves";
@@ -614,84 +550,25 @@ wrapIDBFS(console.log).addListener({
 });
 
 
-const clickToPlayButton = document.getElementById('click-to-play-button');
-clickToPlayButton.textContent = t('clickToPlayDemo');
-clickToPlayButton.classList.add('disabled');
-const demoOffDisclaimer = document.getElementById('demo-off-disclaimer');
-demoOffDisclaimer.textContent = "* " +t('demoOffDisclaimer');
-const playDemoText = document.getElementById('play-demo-text');
-playDemoText.textContent = t('playDemoText');
-const disclaimerText = document.getElementById('disclaimer-text');
-disclaimerText.textContent = t('disclaimer');
-const disclaimerSources = document.getElementById('disclaimer-sources');
-disclaimerSources.textContent = t('disclaimerSources');
-const disclaimerCheckboxLabel = document.getElementById('disclaimer-checkbox-label');
-disclaimerCheckboxLabel.textContent = t('disclaimerCheckbox');
-const disclaimerCheckbox = document.getElementById('disclaimer-checkbox');
+
+
+
+
 const originalGameFile = document.getElementById('original-game-file');
 
 
 function ownerShipConfirmed() {
     localStorage.setItem('vcsky.haveOriginalGame', 'true');
-    disclaimerCheckbox.checked = true;
-    clickToPlayButton.textContent = t('clickToPlayFull');
-    demoOffDisclaimer.textContent = "";
-    clickToPlayButton.classList.remove('disabled');
     haveOriginalGame = true;
 };
 
 function ownerShipNotConfirmed() {
     localStorage.removeItem('vcsky.haveOriginalGame');
-    disclaimerCheckbox.checked = false;
-    clickToPlayButton.textContent = t('clickToPlayDemo');
-    demoOffDisclaimer.textContent = "* " +t('demoOffDisclaimer');
     haveOriginalGame = false;
-    clickToPlayButton.classList.add('disabled');
 };
 
-disclaimerCheckbox.addEventListener('change', async (inputEvent) => {
-    if (inputEvent.target.checked) {
-        if (confirm(t('disclaimerPrompt'))) {
-            originalGameFile.addEventListener('change', async (e) => {
-                try {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const sha256sums = (await (await fetch(replaceFetch("https://cdn.dos.zone/vcsky/sha256sums.txt"))).text()).toLowerCase();
-                        const arrayBuffer = await file.arrayBuffer();
-                        if (window.crypto && window.crypto.subtle) {
-                            const hashBuffer = await window.crypto.subtle.digest('SHA-256', arrayBuffer);
-                            const hashArray = Array.from(new Uint8Array(hashBuffer));
-                            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                            if (sha256sums.indexOf(hashHex) !== -1) {
-                                ownerShipConfirmed();
-                            } else {
-                                ownerShipNotConfirmed();
-                            }
-                        } else {
-                            ownerShipNotConfirmed();
-                        }
-                    } else {
-                        ownerShipNotConfirmed();
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    ownerShipNotConfirmed();
-                }
-            }, { once: true });
-            originalGameFile.click();
-            return;
-        }
-    }
-
-    ownerShipNotConfirmed();
-});
 
 localStorage.getItem('vcsky.haveOriginalGame') === 'true' ? ownerShipConfirmed() : ownerShipNotConfirmed();
-
-function showWasted() {
-    const wastedContainer = document.querySelector('.wasted-container');
-    wastedContainer.hidden = false;
-}
 
 const revc_iniDefault = `
 [VideoMode]
@@ -826,20 +703,20 @@ if (configurableMode) {
     const configCheats = document.getElementById('config-cheats');
     const configFullscreen = document.getElementById('config-fullscreen');
     const configMaxFps = document.getElementById('config-max-fps');
-    
+
     if (configPanel && configCheats && configFullscreen && configMaxFps) {
         // Show config panel
         configPanel.style.display = 'block';
-        
+
         // Set initial values from URL params
         if (configLang) configLang.value = currentLanguage;
         configCheats.checked = cheatsEnabled;
         configFullscreen.checked = autoFullScreen;
         configMaxFps.value = maxFPS;
-        
+
         // Update config panel labels with current language
         updateAllTranslations();
-        
+
         // Language selector handler
         if (configLang) {
             configLang.addEventListener('change', (e) => {
@@ -848,18 +725,41 @@ if (configurableMode) {
                 updateAllTranslations();
             });
         }
-        
+
         // Update settings when changed
         configCheats.addEventListener('change', (e) => {
             cheatsEnabled = e.target.checked;
         });
-        
+
         configFullscreen.addEventListener('change', (e) => {
             autoFullScreen = e.target.checked;
         });
-        
+
         configMaxFps.addEventListener('input', (e) => {
             maxFPS = parseInt(e.target.value) || 0;
         });
     }
 }
+
+
+
+window.VCSKY.start = function () {
+    if (!haveOriginalGame) {
+        alert(t('demoAlert'));
+        return;
+    }
+
+    startGame(null);
+
+    if (!isMobile && autoFullScreen) {
+        if (window.top === window) {
+            document.documentElement.requestFullscreen?.();
+        } else {
+            window.top.postMessage({ event: 'request-fullscreen' }, '*');
+        }
+    }
+};
+
+window.VCSKY.setFullscreen = function (enabled) {
+    autoFullScreen = !!enabled;
+};

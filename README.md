@@ -1,6 +1,9 @@
-# EdgeOne Pages | GTAVC Game
+# EdgeOne Pages | GTA Vice City — HTML5 Port (DOS Zone)
 
 This project supports one click deployment of EdgeOnePages; Support pure Nodejs environment, no need for PHP and Python
+
+# Port made by the DOS.Zone team: [dos.zone/reVCDOS](https://dos.zone/revcdos)
+# Official implementation: [GitHub](https://github.com/Carter54git/revcdos) 
 
 ## Deploy
 
@@ -24,6 +27,17 @@ Support VSCode plugin Live Server for quick debugging and running
 
 Open [http://localhost:5500](http://localhost:5500) with your browser to see the result.
 
+
 ## Create edgeone pages
 
 You can refer to this tutorial link: Import your Git repository address into EdgeOne Pages to create your first EdgeOne Pages site: [Tutorial](https://pages.edgeone.ai/document/importing-a-git-repository)
+
+## License
+
+MIT. Do what you want (but credit the port authors and me). Not affiliated with Rockstar Games.
+
+---
+
+**Authors:** DOS Zone ([@specialist003](https://github.com/okhmanyuk-ev), [@caiiiycuk](https://www.youtube.com/caiiiycuk), [@SerGen](https://t.me/ser_var))
+
+**Enhance HTML5 by**: [@Aliya-chen](https://github.com/AliYa-chen)
