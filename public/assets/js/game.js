@@ -294,9 +294,7 @@ async function startGame(e) {
     const intro = document.querySelector('.intro');
     const introContainer = document.querySelector('.intro-container');
     const loaderContainer = document.querySelector('.loader-container');
-    const clickToPlay = document.querySelector('.click-to-play');
 
-    if (clickToPlay) clickToPlay.style.display = 'none';
     if (loaderContainer) loaderContainer.style.display = "flex";
     if (introContainer) introContainer.hidden = false;
 
@@ -515,16 +513,6 @@ async function loadGame(data) {
         lockTargetWhilePressed: false,
         tapTarget: document.querySelector('.touch-control.fireLeft'),
     }]);
-}
-
-const clickToPlay = document.querySelector('.click-to-play');
-
-if (clickToPlay) {
-    clickToPlay.addEventListener('click', (e) => {
-        if (e.target === clickToPlay || e.target.tagName === 'BUTTON') {
-            window.VCSKY.start();
-        }
-    });
 }
 
 
@@ -770,4 +758,8 @@ window.VCSKY.start = function () {
             window.top.postMessage({ event: 'request-fullscreen' }, '*');
         }
     }
+};
+
+window.VCSKY.setFullscreen = function (enabled) {
+    autoFullScreen = !!enabled;
 };

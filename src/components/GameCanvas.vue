@@ -1,66 +1,45 @@
 <script setup>
-import { onMounted, watch,ref } from 'vue'
+import { onMounted, watch, ref, computed } from 'vue'
 import { useGameStore } from '@/stores/game'
+import TouchControls from './TouchControls.vue'
 
 const game = useGameStore()
 
 const showIntro = ref(true) // 视频是否显示
 
 function enterGame() {
-  // 用户点击继续
-  window.VCSKY?.start?.()
   game.started = true
   showIntro.value = false
 
   if (game.fullscreen) {
-    document.getElementById('canvas')?.requestFullscreen?.()
+    document.documentElement.requestFullscreen?.();
   }
 }
-
-onMounted(() => {
-  // 可选：视频自动播放
-  const video = document.querySelector<HTMLVideoElement>('.intro')
-  if (video) {
-    video.play().catch(() => {
-      // 移动端自动播放可能被阻止
-      console.log('Video autoplay blocked, wait for user interaction')
-    })
-  }
-})
 
 watch(
   () => game.ready,
   (v) => {
     if (!v) return
-
     game.started = true
-
-    // 是否浏览器全屏，只看勾选
-    if (game.fullscreen) {
-      requestAnimationFrame(() => {
-        document.getElementById('canvas')?.requestFullscreen?.()
-      })
-    }
   }
 )
 
 </script>
 
 <template>
-  <!-- 视频背景 -->
-    <video v-if="game.ready && !game.loading && showIntro" @click="enterGame"
-      class="absolute inset-0 w-full h-full object-cover"
-      src="/assets/video/intro.mp4"
-      autoplay
-      muted
-      playsinline
-    ></video>
-  <canvas
-      id="canvas"
-      class="emscripten w-full h-full"
-      oncontextmenu="event.preventDefault()"
-    />
+  <div class="emscripten w-full h-full text-white" @click="enterGame">
+    <!-- 视频背景 -->
+    <div v-if="game.ready && !game.loading && showIntro" class="absolute inset-0 w-full h-full intro-container">
+      <video class="absolute inset-0 w-full h-full intro" src="/assets/video/intro.mp4" autoplay playsinline></video>
+      <div class="flex pointer-events-none absolute inset-x-0 bottom-0 p-4 sm:p-5 justify-center">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><a
+            class="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-sm font-medium backdrop-blur transition-colors hover:bg-white/20 self-start sm:self-auto"
+            aria-label="Open case study: GTA VC">点击进入游戏</a>
+        </div>
+      </div>
+    </div>
+
+    <canvas id="canvas" class="emscripten w-full h-full" oncontextmenu="event.preventDefault()" />
+    <TouchControls />
+  </div>
 </template>
-
-
-

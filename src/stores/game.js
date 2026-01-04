@@ -37,6 +37,9 @@ export const useGameStore = defineStore('game', {
 
       await this.loadEngine()
 
+      // ⭐ 同步 Vue 的 fullscreen 状态给 game.js
+      window.VCSKY?.setFullscreen?.(this.fullscreen);
+
       // 1️⃣ 接收真实下载进度
       window.VCSKY.onProgress = (p) => {
         this.progress = p
@@ -62,39 +65,6 @@ export const useGameStore = defineStore('game', {
       await loadScriptOnce('/assets/js/game.js')
 
       this.engineReady = true
-    },
-
-    triggerGameStart() {
-      requestAnimationFrame(() => {
-        window.VCSKY?.start?.()
-      })
-    },
-
-    fakeLoad() {
-      const timer = setInterval(() => {
-        this.progress += Math.random() * 12
-        if (this.progress >= 100) {
-          this.progress = 100
-          clearInterval(timer)
-          this.finishLoading()
-        }
-      }, 300)
-    },
-
-    finishLoading() {
-      this.loading = false
-      this.started = true
-
-      if (this.fullscreen) {
-        this.requestBrowserFullscreen()
-      }
-    },
-
-    requestBrowserFullscreen() {
-      requestAnimationFrame(() => {
-        const el = document.getElementById('canvas')
-        el?.requestFullscreen?.()
-      })
     },
   },
 })

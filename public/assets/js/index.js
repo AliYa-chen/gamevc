@@ -1,20 +1,20 @@
 (function() {
     var modules = [
-        'modules/runtime.js',
-        (currentLanguage === 'ru' ? 'modules/packages/ru.js' : 'modules/packages/en.js'),
-        'modules/loader.js',
-        'modules/fs.js',
-        'modules/audio.js',
-        'modules/graphics.js',
-        'modules/events.js',
-        'modules/fetch.js',
-        (currentLanguage === 'ru' ? 'modules/asm_consts/ru.js' : 'modules/asm_consts/en.js'),
-        // 'modules/cheats.js',
-        'modules/main.js'
+        'assets/modules/runtime.js',
+        (currentLanguage === 'ru' ? 'assets/modules/packages/ru.js' : 'assets/modules/packages/en.js'),
+        'assets/modules/loader.js',
+        'assets/modules/fs.js',
+        'assets/modules/audio.js',
+        'assets/modules/graphics.js',
+        'assets/modules/events.js',
+        'assets/modules/fetch.js',
+        (currentLanguage === 'ru' ? 'assets/modules/asm_consts/ru.js' : 'assets/modules/asm_consts/en.js'),
+        // 'assets/modules/cheats.js',
+        'assets/modules/main.js'
     ];
 
     if (cheatsEnabled)
-        modules.push('modules/cheats.js');
+        modules.push('assets/modules/cheats.js');
 
     if (typeof importScripts === 'function') {
         importScripts.apply(null, modules);

@@ -43,7 +43,7 @@ onMounted(() => {
          aspect-4/3
          sm:aspect-video
          lg:aspect-auto
-         lg:h-full" href="#链接">
+         lg:h-full">
             <img :src="imgSrc" class="absolute inset-0 h-full w-full object-cover" />
 
             <!-- 渐变遮罩 -->
@@ -119,7 +119,7 @@ onMounted(() => {
 
               <!-- 右下角详情 -->
               <div class="hidden">
-                <a href="#链接" class="pointer-events-auto inline-flex items-center gap-2
+                <a class="pointer-events-auto inline-flex items-center gap-2
                        rounded-full bg-white/10
                        px-3 py-2 text-sm font-medium
                        backdrop-blur
