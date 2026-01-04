@@ -5,16 +5,42 @@ const params = new URLSearchParams(window.location.search);
 
 window.VCSKY = window.VCSKY || {};
 
+window.VCSKY.setConfig = function (cfg = {}) {
+    if (cfg.language) {
+        currentLanguage = cfg.language;
+        updateGameDataForLanguage(currentLanguage);
+    }
+
+    if (typeof cfg.cheats === 'boolean') {
+        cheatsEnabled = cfg.cheats;
+    }
+
+    if (typeof cfg.fullscreen === 'boolean') {
+        autoFullScreen = cfg.fullscreen;
+    }
+
+    if (typeof cfg.maxFPS === 'number') {
+        maxFPS = cfg.maxFPS;
+        if (window.Module?._setFPSLimit) {
+            Module._setFPSLimit(maxFPS);
+        }
+    }
+
+    console.log('[VCSKY] Config applied:', {
+        language: currentLanguage,
+        cheatsEnabled,
+        autoFullScreen,
+        maxFPS,
+    });
+};
+
+
 
 // Base URLs
 const replaceFetch = (str) => str.replace("https://cdn.dos.zone/vcsky/", "vcsky/")
 const replaceBR = "https://cdn.nbcnm.cn/vcbr/"
 // const replaceBR = "/gtadata/vcsky/"
 
-
-// Configurable mode - show settings UI before play
-//const configurableMode = params.get('configurable') === "1";
-const configurableMode = "1";
 // Settings that can be configured via URL or UI
 let autoFullScreen = params.get('fullscreen') !== "0";
 let cheatsEnabled = params.get('cheats') === "1";
@@ -32,127 +58,6 @@ document.body.dataset.isTouch = isTouch ? 1 : 0;
 const dataSize = 130 * 1024 * 1024;
 const textDecoder = new TextDecoder();
 let haveOriginalGame = false;
-const translations = {
-    zh: {
-        clickToPlayDemo: "点击试玩Demo",
-        clickToPlayFull: "点击游玩演示版",
-        openLocalArchive: "打开本地存档",
-        invalidKey: "无效的密钥",
-        checking: "正在检查...",
-        cloudSaves: "云存档:",
-        enabled: "已启用",
-        disabled: "未启用",
-        playDemoText: "您可以试玩演示版，或提供原始游戏文件以体验完整版.",
-        disclaimer: "免责声明：",
-        disclaimerSources: "本游戏基于《侠盗猎车手：罪恶都市》开源版本制作，非商业发行，与R星游戏公司（Rockstar Games）无任何关联。",
-        disclaimerCheckbox: "我拥有该游戏原版",
-        disclaimerPrompt: "你需要提供一份原版游戏文件，以确认你拥有该游戏的原版所有权。",
-        cantContinuePlaying: "演示版无法继续游玩剧情。请提供原版游戏文件以继续体验。",
-        demoAlert: "演示版仅用于熟悉游戏技术架构，所有功能均可使用，但无法推进游戏剧情主线。请提供原版游戏文件以启动完整版。",
-        downloading: "正在缓冲",
-        enterKey: "输入你的密钥",
-        clickToContinue: "点击继续...",
-        enterJsDosKey: "输入js-dos密钥（5位长度）",
-        ruTranslate: "",
-        configLanguage: "语言：",
-        configCheats: "作弊功能（F3键）",
-        configFullscreen: "全屏模式",
-        configMaxFps: "最大帧率：",
-        configUnlimited: "（0 = 无限制）",
-        // 新增表格表头翻译
-        tableHeaderItem: "配置项名称",
-        tableHeaderRange: "取值范围",
-        tableHeaderDesc: "说明",
-        // 新增表格配置项说明翻译
-        configLangDesc: "游戏语言",
-        configCheatsDesc: "启用作弊菜单（按F3键呼出）",
-        configOriginalGameDesc: "游玩前请求下载原始游戏文件",
-        configFullscreenDesc: "禁用自动全屏功能",
-        configMaxFpsDesc: "限制游戏帧率（例如：设置60代表60帧/秒）",
-        configConfigurableDesc: "在「开始游戏」按钮前显示配置界面",
-    },
-    en: {
-        clickToPlayDemo: "Click to play demo",
-        clickToPlayFull: "Click to play",
-        openLocalArchive: "Open Local Saves",
-        invalidKey: "invalid key",
-        checking: "checking...",
-        cloudSaves: "Cloud saves:",
-        enabled: "enabled",
-        disabled: "disabled",
-        playDemoText: "You can play the DEMO version, or provide the original game files to play the full version.",
-        disclaimer: "DISCLAIMER:",
-        disclaimerSources: "This game is based on an open source version of GTA: Vice City. It is not a commercial release and is not affiliated with Rockstar Games.",
-        disclaimerCheckbox: "I own the original game",
-        disclaimerPrompt: "You need to provide a file from the original game to confirm ownership of the original game.",
-        cantContinuePlaying: "You can't continue playing in DEMO version. Please provide the original game files to continue playing.",
-        demoAlert: "The demo version is intended only for familiarizing yourself with the game technology. All features are available, but you won't be able to progress through the game's storyline. Please provide the original game files to launch the full version.",
-        downloading: "Downloading",
-        enterKey: "enter your key",
-        clickToContinue: "Click to continue...",
-        enterJsDosKey: "Enter js-dos key (5 len)",
-        ruTranslate: "",
-        configLanguage: "Language:",
-        configCheats: "Cheats (F3)",
-        configFullscreen: "Fullscreen",
-        configMaxFps: "Max FPS:",
-        configUnlimited: "(0 = unlimited)",
-        // 新增表格表头翻译
-        tableHeaderItem: "Configuration Item Name",
-        tableHeaderRange: "Value Range",
-        tableHeaderDesc: "Description",
-        // 新增表格配置项说明翻译
-        configLangDesc: "Game Language",
-        configCheatsDesc: "Enable Cheat Menu (Press F3 to open)",
-        configOriginalGameDesc: "Request to download original game files before playing",
-        configFullscreenDesc: "Disable automatic fullscreen function",
-        configMaxFpsDesc: "Limit game frame rate (e.g., set 60 for 60 FPS)",
-        configConfigurableDesc: "Show configuration interface before the \"Start Game\" button",
-    },
-    ru: {
-        clickToPlayDemo: "Играть в демо версию",
-        clickToPlayFull: "Играть",
-        openLocalArchive: "Открыть локальные сохранения",
-        invalidKey: "неверный ключ",
-        checking: "проверка...",
-        cloudSaves: "Облачные сохранения:",
-        enabled: "включены",
-        disabled: "выключены",
-        playDemoText: "Вы можете играть в демо версию, или предоставить оригинальные файлы игры для полной версии.",
-        disclaimer: "ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ:",
-        disclaimerSources: "Эта игра основана на открытой версии GTA: Vice City. Она не является коммерческим изданием и не связана с Rockstar Games.",
-        disclaimerCheckbox: "Я владею оригинальной игрой",
-        disclaimerPrompt: "Вам потребуется приложить какой-либо файл из оригинальной игры для подтверждения владения оригинальной игрой.",
-        cantContinuePlaying: "Вы не можете продолжить игру в демо версии. Пожалуйста, предоставьте оригинальные файлы игры для продолжения игры.",
-        demoAlert: "Демо версия предназначена только для ознакомления с технологией игры. Все функции доступны, но вы не сможете продолжить игру по сюжету. Пожалуйста, предоставьте оригинальные файлы игры для запуска полной версии.",
-        downloading: "Загрузка",
-        enterKey: "введите ваш ключ",
-        clickToContinue: "Нажмите для продолжения...",
-        enterJsDosKey: "Введите ключ js-dos (5 букв)",
-        ruTranslate: `
-<div class="translated-by">
-    <span>Переведено на русский студией</span>
-    <a href="https://www.gamesvoice.ru/" target="_blank">GamesVoice</a>
-</div>
-`,
-        configLanguage: "Язык:",
-        configCheats: "Читы (F3)",
-        configFullscreen: "Полный экран",
-        configMaxFps: "Макс. FPS:",
-        configUnlimited: "(0 = без ограничений)",
-        // 新增表格表头翻译
-        tableHeaderItem: "Название параметра конфигурации",
-        tableHeaderRange: "Диапазон значений",
-        tableHeaderDesc: "Описание",
-        // 新增表格配置项说明翻译
-        configLangDesc: "Язык игры",
-        configCheatsDesc: "Включить меню читов (нажмите F3 для открытия)",
-        configOriginalGameDesc: "Запросить загрузку оригинальных игровых файлов перед запуском",
-        configFullscreenDesc: "Отключить автоматическую функцию полноэкранного режима",
-        configMaxFpsDesc: "Ограничить частоту кадров игры (например: установите 60 для 60 FPS)",
-        configConfigurableDesc: "Показать интерфейс конфигурации перед кнопкой «Запустить игру»",
-    },
-};
 
 var currentLanguage = navigator.language.split("-")[0] === "ru" ? "ru" : "en";
 if (params.get("lang") === "ru") {
@@ -161,72 +66,22 @@ if (params.get("lang") === "ru") {
 if (params.get("lang") === "en") {
     currentLanguage = "en";
 }
+
 currentLanguage = 'zh'
 
 window.t = function (key) {
-    return translations[currentLanguage][key];
-}
-
-// Function to update all translated texts on the page
-function updateAllTranslations() {
-
-    const openLocalArchiveLink = document.getElementById('open-local-archive-link');
-    if (openLocalArchiveLink) {
-        openLocalArchiveLink.textContent = t('openLocalArchive');
-    }
-
-    // Update config panel labels if present
-    const configLangLabel = document.getElementById('config-lang-label');
-    if (configLangLabel) configLangLabel.textContent = t('configLanguage');
-
-    const configCheatsLabel = document.getElementById('config-cheats-label');
-    if (configCheatsLabel) configCheatsLabel.textContent = t('configCheats');
-
-    const configFullscreenLabel = document.getElementById('config-fullscreen-label');
-    if (configFullscreenLabel) configFullscreenLabel.textContent = t('configFullscreen');
-
-    const configMaxFpsLabel = document.getElementById('config-max-fps-label');
-    if (configMaxFpsLabel) configMaxFpsLabel.textContent = t('configMaxFps');
-
-    const configMaxFpsUnlimited = document.getElementById('config-max-fps-unlimited');
-    if (configMaxFpsUnlimited) configMaxFpsUnlimited.textContent = t('configUnlimited');
-
-    // ========== 新增：配置表格翻译逻辑（和原有代码风格保持一致） ==========
-    // 1. 渲染表格表头
-    const tableHeaderItem = document.getElementById('table-header-item');
-    if (tableHeaderItem) tableHeaderItem.textContent = t('tableHeaderItem');
-
-    const tableHeaderRange = document.getElementById('table-header-range');
-    if (tableHeaderRange) tableHeaderRange.textContent = t('tableHeaderRange');
-
-    const tableHeaderDesc = document.getElementById('table-header-desc');
-    if (tableHeaderDesc) tableHeaderDesc.textContent = t('tableHeaderDesc');
-
-    // 2. 渲染表格配置项说明
-    const configDescLang = document.getElementById('config-desc-lang');
-    if (configDescLang) configDescLang.textContent = t('configLangDesc');
-
-    const configDescCheats = document.getElementById('config-desc-cheats');
-    if (configDescCheats) configDescCheats.textContent = t('configCheatsDesc');
-
-    const configDescOriginalGame = document.getElementById('config-desc-original-game');
-    if (configDescOriginalGame) configDescOriginalGame.textContent = t('configOriginalGameDesc');
-
-    const configDescFullscreen = document.getElementById('config-desc-fullscreen');
-    if (configDescFullscreen) configDescFullscreen.textContent = t('configFullscreenDesc');
-
-    const configDescMaxFps = document.getElementById('config-desc-max-fps');
-    if (configDescMaxFps) configDescMaxFps.textContent = t('configMaxFpsDesc');
-
-    const configDescConfigurable = document.getElementById('config-desc-configurable');
-    if (configDescConfigurable) configDescConfigurable.textContent = t('configConfigurableDesc');
-    // ========== 表格翻译逻辑结束 ==========
+    return key;
 }
 
 // Function to update game data files based on language
 function updateGameDataForLanguage(lang) {
-    data_content = `${replaceBR}vc-sky-en-v6.data.br`;
-    wasm_content = `${replaceBR}vc-sky-en-v6.wasm.br`;
+    if (lang === 'ru') {
+        data_content = `${replaceBR}vc-sky-ru-v6.data.br`;
+        wasm_content = `${replaceBR}vc-sky-ru-v6.wasm.br`;
+    } else {
+        data_content = `${replaceBR}vc-sky-en-v6.data.br`;
+        wasm_content = `${replaceBR}vc-sky-en-v6.wasm.br`;
+    }
 }
 
 // Initialize data files based on current language
@@ -696,53 +551,7 @@ const revc_ini = (() => {
     return revc_iniDefault;
 })();
 
-// Configurable mode UI
-if (configurableMode) {
-    const configPanel = document.getElementById('config-panel');
-    const configLang = document.getElementById('config-lang');
-    const configCheats = document.getElementById('config-cheats');
-    const configFullscreen = document.getElementById('config-fullscreen');
-    const configMaxFps = document.getElementById('config-max-fps');
-
-    if (configPanel && configCheats && configFullscreen && configMaxFps) {
-        // Show config panel
-        configPanel.style.display = 'block';
-
-        // Set initial values from URL params
-        if (configLang) configLang.value = currentLanguage;
-        configCheats.checked = cheatsEnabled;
-        configFullscreen.checked = autoFullScreen;
-        configMaxFps.value = maxFPS;
-
-        // Update config panel labels with current language
-        updateAllTranslations();
-
-        // Language selector handler
-        if (configLang) {
-            configLang.addEventListener('change', (e) => {
-                currentLanguage = e.target.value;
-                updateGameDataForLanguage(currentLanguage);
-                updateAllTranslations();
-            });
-        }
-
-        // Update settings when changed
-        configCheats.addEventListener('change', (e) => {
-            cheatsEnabled = e.target.checked;
-        });
-
-        configFullscreen.addEventListener('change', (e) => {
-            autoFullScreen = e.target.checked;
-        });
-
-        configMaxFps.addEventListener('input', (e) => {
-            maxFPS = parseInt(e.target.value) || 0;
-        });
-    }
-}
-
-
-
+// start game
 window.VCSKY.start = function () {
     if (!haveOriginalGame) {
         alert(t('demoAlert'));
@@ -758,8 +567,4 @@ window.VCSKY.start = function () {
             window.top.postMessage({ event: 'request-fullscreen' }, '*');
         }
     }
-};
-
-window.VCSKY.setFullscreen = function (enabled) {
-    autoFullScreen = !!enabled;
 };

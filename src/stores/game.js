@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import FALLBACK_I18N from '@/i18n'
 
 function loadScriptOnce(src) {
   return new Promise((resolve, reject) => {
@@ -24,7 +25,13 @@ export const useGameStore = defineStore('game', {
     loading: false,   // 是否正在下载
     ready: false,     // ⭐ 是否“点击继续”
     progress: 0,
-    fullscreen: false,
+
+    // ===== 配置项 =====
+    language: 'zh',     // en | ru | zh
+    cheats: false,      // Cheats (F3)
+    fullscreen: true,
+    maxFPS: 0,          // 0 = unlimited
+
     engineReady: false,
   }),
 
@@ -37,26 +44,25 @@ export const useGameStore = defineStore('game', {
 
       await this.loadEngine()
 
-      // ⭐ 同步 Vue 的 fullscreen 状态给 game.js
-      window.VCSKY?.setFullscreen?.(this.fullscreen);
+      // ⭐ 同步所有配置给原生 game.js
+      window.VCSKY?.setConfig?.({
+        language: this.language,
+        cheats: this.cheats,
+        fullscreen: this.fullscreen,
+        maxFPS: this.maxFPS,
+      })
 
-      // 1️⃣ 接收真实下载进度
       window.VCSKY.onProgress = (p) => {
         this.progress = p
       }
 
-      // 2️⃣ 下载完成（setStatus 触发）
       window.VCSKY.onReady = () => {
         this.loading = false
         this.ready = true
       }
 
-      // 3️⃣ 真正启动游戏
       window.VCSKY.start()
     },
-
-
-
     async loadEngine() {
       if (this.engineReady) return
 
@@ -65,6 +71,14 @@ export const useGameStore = defineStore('game', {
       await loadScriptOnce('/assets/js/game.js')
 
       this.engineReady = true
+    },
+  },
+  getters: {
+    t: (state) => (key) => {
+      if (window.VCSKY?.t) {
+        return window.VCSKY.t(key)
+      }
+      return FALLBACK_I18N[state.language]?.[key] || key
     },
   },
 })
