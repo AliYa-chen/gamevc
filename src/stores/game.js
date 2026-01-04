@@ -3,7 +3,6 @@ import FALLBACK_I18N from '@/i18n'
 
 function loadScriptOnce(src) {
   return new Promise((resolve, reject) => {
-    // 防止重复加载
     if ([...document.scripts].some(s => s.src.includes(src))) {
       resolve()
       return
@@ -19,21 +18,34 @@ function loadScriptOnce(src) {
   })
 }
 
+// 本地缓存 key
+const LOCAL_KEY = 'game_config'
+
 export const useGameStore = defineStore('game', {
-  state: () => ({
-    started: false,   // 是否已进入游戏
-    loading: false,   // 是否正在下载
-    ready: false,     // ⭐ 是否“点击继续”
-    progress: 0,
+  state: () => {
+    // 尝试从 localStorage 读取配置
+    let saved = {}
+    try {
+      const raw = localStorage.getItem(LOCAL_KEY)
+      if (raw) saved = JSON.parse(raw)
+    } catch (e) {
+      console.warn('读取本地游戏配置失败', e)
+    }
 
-    // ===== 配置项 =====
-    language: 'zh',     // en | ru | zh
-    cheats: false,      // Cheats (F3)
-    fullscreen: true,
-    maxFPS: 0,          // 0 = unlimited
+    return {
+      started: false,
+      loading: false,
+      ready: false,
+      progress: 0,
 
-    engineReady: false,
-  }),
+      language: saved.language || 'zh',   // 从缓存读取
+      cheats: saved.cheats ?? false,
+      fullscreen: saved.fullscreen ?? true,
+      maxFPS: saved.maxFPS ?? 0,
+
+      engineReady: false,
+    }
+  },
 
   actions: {
     async startGame() {
@@ -63,6 +75,7 @@ export const useGameStore = defineStore('game', {
 
       window.VCSKY.start()
     },
+
     async loadEngine() {
       if (this.engineReady) return
 
@@ -72,12 +85,35 @@ export const useGameStore = defineStore('game', {
 
       this.engineReady = true
     },
+
+    // 保存配置到 localStorage
+    saveConfig() {
+      const config = {
+        language: this.language,
+        cheats: this.cheats,
+        fullscreen: this.fullscreen,
+        maxFPS: this.maxFPS,
+      }
+      try {
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(config))
+      } catch (e) {
+        console.warn('保存游戏配置失败', e)
+      }
+    },
+
+    // 手动重置配置
+    resetConfig() {
+      localStorage.removeItem(LOCAL_KEY)
+      this.language = 'zh'
+      this.cheats = false
+      this.fullscreen = true
+      this.maxFPS = 0
+    },
   },
+
   getters: {
     t: (state) => (key) => {
-      if (window.VCSKY?.t) {
-        return window.VCSKY.t(key)
-      }
+      if (window.VCSKY?.t) return window.VCSKY.t(key)
       return FALLBACK_I18N[state.language]?.[key] || key
     },
   },

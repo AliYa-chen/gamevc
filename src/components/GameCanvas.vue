@@ -34,7 +34,7 @@ watch(
       <div class="flex pointer-events-none absolute inset-x-0 bottom-0 p-4 sm:p-5 justify-center">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><a
             class="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-sm font-medium backdrop-blur transition-colors hover:bg-white/20 self-start sm:self-auto"
-            aria-label="Open case study: GTA VC">点击进入游戏</a>
+            aria-label="Open case study: GTA VC">{{ game.t('ClickToContinue') }}</a>
         </div>
       </div>
     </div>
