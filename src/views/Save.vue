@@ -34,6 +34,14 @@
         {{ game.t('SaveGoBackButton') }}
       </button>
 
+      <button
+        @click="repairSaves"
+        class="px-5 py-2 rounded-lg font-semibold bg-cyan-500 text-white hover:bg-cyan-600 transition"
+      >
+        {{ game.t('SaveRepairButton') }}
+      </button>
+
+
        <button
         @click="clearCache"
         class="px-5 py-2 rounded-lg font-semibold bg-rose-500 text-white hover:bg-rose-600 transition"
@@ -123,7 +131,7 @@ import { useGameStore } from '@/stores/game'
 const game = useGameStore()
 
 // 引入全局存档模块
-import { getSlots, getSave, writeSave, deleteSave } from '@/utils/vcSaves'
+import { getSlots, getSave, writeSave, deleteSave,deleteWholeSavesDB } from '@/utils/vcSaves'
 
 const router = useRouter()
 const slots = ref([])
@@ -155,10 +163,15 @@ async function handleUpload(e) {
   const file = e.target.files[0]
   if (!file || !currentSlot) return
 
-  await writeSave(currentSlot, await file.arrayBuffer())
-  currentSlot = null
-  e.target.value = ''
-  renderSaves()
+  try {
+    await writeSave(currentSlot, await file.arrayBuffer())
+  } catch (err) {
+    alert(String(err?.message || err))
+  } finally {
+    currentSlot = null
+    e.target.value = ''
+    renderSaves()
+  }
 }
 
 /** 下载存档 */
@@ -176,10 +189,15 @@ async function download(slot) {
 
 /** 使用满级存档 */
 async function useMaxSave(slot) {
-  const resp = await fetch('/GTAVC_SAVE.bin')
-  if (!resp.ok) throw new Error('满级存档下载失败')
-  await writeSave(slot, await resp.arrayBuffer())
-  renderSaves()
+  try {
+    const resp = await fetch('/GTAVC_SAVE.bin')
+    if (!resp.ok) throw new Error('满级存档下载失败')
+    await writeSave(slot, await resp.arrayBuffer())
+  } catch (err) {
+    alert(String(err?.message || err))
+  } finally {
+    renderSaves()
+  }
 }
 
 /** 删除存档槽位 */
@@ -211,6 +229,32 @@ function downloadMaxSave() {
       URL.revokeObjectURL(a.href)
     })
 }
+
+async function repairSaves() {
+  const ok = confirm('修复存档会清空所有本地存档数据（相当于删除整个存档数据库），确定继续吗？')
+  if (!ok) return
+
+  try {
+    // 1) 删除存档 DB
+    await deleteWholeSavesDB()
+
+    // 2) 清理一些可能的旧标记/缓存（可选但建议）
+    localStorage.removeItem('vcsky.saves')
+
+    // 如果你还遇到过 fetched 缓存/数据缓存导致不一致，也可以一并删
+    // indexedDB.deleteDatabase('/vc-assets/fetched')  // 你原来 clearCache 已经有了
+
+    alert('已修复：存档数据库已清空。页面将刷新以重新初始化。')
+
+    // 3) 刷新页面让 openDB / 游戏重新建库
+    location.reload()
+  } catch (err) {
+    alert('修复失败：' + String(err?.message || err))
+  } finally {
+    // 刷新前不需要 renderSaves；reload 会重新走 onMounted
+  }
+}
+
 
 /** 回主页 */
 function goback() {

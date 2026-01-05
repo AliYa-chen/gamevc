@@ -26,7 +26,8 @@ const FALLBACK_I18N = {
     SaveUpButton:'上传替换',
     SaveMaxLevel:'满级存档',
     Del:'删除',
-    Download:'下载'
+    Download:'下载',
+    SaveRepairButton:'修复存档无法使用'
   },
   en: {
     StartGame: "Start Game",
@@ -55,7 +56,8 @@ const FALLBACK_I18N = {
     SaveUpButton: "Upload & Replace",
     SaveMaxLevel: "Max Level Save",
     Del: "Delete",
-    Download: "Download"
+    Download: "Download",
+    SaveRepairButton:'Fix broken saves'
   },
   ru: {
     StartGame: "Начать игру",
@@ -84,7 +86,8 @@ const FALLBACK_I18N = {
     SaveUpButton: "Загрузить и заменить",
     SaveMaxLevel: "Максимальное сохранение",
     Del: "Удалить",
-    Download: "Скачать"
+    Download: "Скачать",
+    SaveRepairButton:'Исправить повреждённые сохранения'
   }
 }
 
