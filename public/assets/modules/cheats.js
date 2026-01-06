@@ -242,6 +242,74 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #ff00ff;
         }
+
+        /* Toggle Switch */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 10px;
+            border: 1px solid #333;
+            margin-bottom: 4px;
+        }
+        .switch-label {
+            font-size: 12px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 18px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 18px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 12px;
+            width: 12px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #ff00ff;
+        }
+        input:checked + .slider:before {
+            transform: translateX(16px);
+        }
+        
+        /* Money Button */
+        .money-btn {
+            width: 100%;
+            background: rgba(255, 215, 0, 0.1) !important;
+            border: 1px solid #ffd700 !important;
+            color: #ffd700 !important;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+        .money-btn:active {
+            background: rgba(255, 215, 0, 0.3) !important;
+        }
     `;
     document.head.appendChild(style);
 
@@ -282,144 +350,166 @@
     const ui = document.createElement('div');
     ui.id = 'cheat-engine-ui';
     ui.innerHTML = `
-    <div id="cheat-close-btn">✕</div>  <!-- 作弊面板关闭按钮 -->
-    <h1>Cheat Engine</h1>  <!-- 内存修改器（直译：作弊引擎，通用译法：内存修改器） -->
-    
-    <div class="ce-section">  <!-- 功能分区 -->
-        <div class="ce-label">扫描器</div>  <!-- 扫描器 -->
-        <div style="display: flex; gap: 4px;">
-            <input type="text" id="ce-value" placeholder="数值" style="flex: 1;">  <!-- 数值输入框 -->
-            <select id="ce-type">
-                <!-- 数值类型下拉框 -->
-                <option value="any" style="color: #666; /* 任意类型：灰色 */">任意类型</option>
-                <option value="i32" style="color: #2e7d32; /* 32位整数：绿色 */">32位整数</option>
-                <option value="f32" style="color: #e63946; /* 32位浮点：红色 */">32位浮点</option>
-                <option value="i16" style="color: #2e7d32; /* 16位整数：绿色 */">16位整数</option>
-                <option value="i8" style="color: #2e7d32; /* 8位整数：绿色 */">8位整数</option>
-            </select>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
-            <button id="ce-search">新扫描</button>  <!-- 新扫描 -->
-            <button id="ce-next">再次扫描</button>  <!-- 再次扫描 -->
-            <button id="ce-reset">重置扫描</button>  <!-- 重置扫描 -->
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px;">
-            <button id="ce-snap" title="抓取当前数值">抓取数值</button>  <!-- 抓取当前数值 -->
-            <button id="ce-inc" title="查找增加的数值">数值增加</button>  <!-- 查找增加的数值 -->
-            <button id="ce-dec" title="查找减少的数值">数值减少</button>  <!-- 查找减少的数值 -->
-            <button id="ce-changed" title="查找变动的数值">数值变动</button>  <!-- 查找变动的数值 -->
-        </div>
-        <div id="ce-status" style="font-size: 10px; color: #888;">就绪</div>  <!-- 状态提示：就绪 -->
-        <div class="results" id="ce-results"></div>  <!-- 扫描结果显示区 -->
-    </div>
-    
-    <div class="ce-section">
-        <div class="ce-label">手动修改</div>  <!-- 手动修改 -->
-        <div style="display: flex; gap: 4px;">
-            <input type="text" id="ce-manual-addr" placeholder="内存地址(0x开头)" style="flex: 1;">  <!-- 内存地址输入框 -->
-            <button id="ce-view-addr">查看数值</button>  <!-- 查看数值 -->
-        </div>
-        <div id="ce-manual-results" style="font-size: 10px; display: none;"></div>  <!-- 手动修改结果区 -->
-    </div>
-    
-    <div class="ce-section">
-        <div class="ce-label">飞行模式（右Shift键切换）</div>  <!-- 飞行模式（右Shift键切换） -->
-        <div style="display: flex; gap: 4px;">
-            <input type="text" id="ce-health-addr" placeholder="生命值地址(0x...)" style="flex: 1;">  <!-- 生命值内存地址 -->
-            <button id="ce-setup-airbreak">启用设置</button>  <!-- 启用设置 -->
-        </div>
-        <div style="display: flex; gap: 4px; margin-top: 4px;">
-            <span style="font-size: 10px; color: #888;">速度：</span>
-            <input type="number" id="ce-fly-speed" value="2.0" step="0.5" min="0.1" max="50" style="width: 60px;">  <!-- 飞行速度调节 -->
-        </div>
-        <div id="ce-airbreak-status" style="font-size: 10px; color: #888;">未配置</div>  <!-- 飞行模式状态：未配置 -->
-        <div id="ce-pos-display" style="font-size: 9px; color: #666;"></div>  <!-- 角色坐标显示区 -->
-    </div>
-    
-    <div class="ce-section">
-        <div class="ce-label">作弊码</div>  <!-- 作弊码 -->
+        <div id="cheat-close-btn">✕</div>
+        <h1>作弊引擎</h1>
         
-        <div class="cheat-cat">武器与生命值</div>  <!-- 武器与生命值 -->
-        <div class="cheat-grid">
-            <button class="cheat-btn" onclick="typeCheat('THUGSTOOLS')">初级武器</button>
-            <button class="cheat-btn" onclick="typeCheat('PROFESSIONALTOOLS')">中级武器</button>
-            <button class="cheat-btn" onclick="typeCheat('NUTTERTOOLS')">高级武器</button>
-            <button class="cheat-btn" onclick="typeCheat('ASPIRINE')">恢复生命值</button>
-            <button class="cheat-btn" onclick="typeCheat('PRECIOUSPROTECTION')">获得防弹衣</button>
+        <div class="ce-section">
+            <div class="ce-label">扫描器</div>
+            <div style="display: flex; gap: 4px;">
+                <input type="text" id="ce-value" placeholder="数值" style="flex: 1;">
+                <select id="ce-type">
+                    <option value="any" style="color: #666; /* 任意类型：灰色 */">任意类型</option>
+                    <option value="i32" style="color: #2e7d32; /* 32位整数：绿色 */">32位整数</option>
+                    <option value="f32" style="color: #e63946; /* 32位浮点：红色 */">32位浮点</option>
+                    <option value="i16" style="color: #2e7d32; /* 16位整数：绿色 */">16位整数</option>
+                    <option value="i8" style="color: #2e7d32; /* 8位整数：绿色 */">8位整数</option>
+                </select>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
+                <button id="ce-search">新扫描</button>
+                <button id="ce-next">再次扫描</button>
+                <button id="ce-reset">重置扫描</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px;">
+                <button id="ce-snap" title="抓取当前数值">抓取当前数值</button>
+                <button id="ce-inc" title="查找增加的数值">查找增加的数值</button>
+                <button id="ce-dec" title="查找减少的数值">查找减少的数值</button>
+                <button id="ce-changed" title="查找变动的数值">查找变动的数值</button>
+            </div>
+            <div id="ce-status" style="font-size: 10px; color: #888;">就绪</div>
+            <div class="results" id="ce-results"></div>
         </div>
-    
-        <div class="cheat-cat">游戏玩法</div>  <!-- 游戏玩法 -->
-        <div class="cheat-grid">
-            <button class="cheat-btn" onclick="typeCheat('LEAVEMEALONE')">消除通缉等级</button>
-            <button class="cheat-btn" onclick="typeCheat('YOUWONTTAKEMEALIVE')">通缉等级+2</button>
-            <button class="cheat-btn" onclick="typeCheat('ONSPEED')">游戏加速</button>
-            <button class="cheat-btn" onclick="typeCheat('BOOOOOORING')">游戏减速</button>
-            <button class="cheat-btn" onclick="typeCheat('LIFEISPASSINGMEBY')">时间流逝加速</button>
-            <button class="cheat-btn" onclick="typeCheat('BIGBANG')">周边车辆爆炸</button>
-            <button class="cheat-btn" onclick="typeCheat('FIGHTFIGHTFIGHT')">路人互殴</button>
-            <button class="cheat-btn" onclick="typeCheat('NOBODYLIKESME')">路人攻击你</button>
-            <button class="cheat-btn" onclick="typeCheat('OURGODGIVENRIGHTTOBEARARMS')">路人全员持械</button>
-            <button class="cheat-btn" onclick="typeCheat('CHICKSWITHGUNS')">女性路人持械</button>
-            <button class="cheat-btn" onclick="typeCheat('FANNYMAGNET')">魅力四射（女性主动靠近）</button>
-            <button class="cheat-btn" onclick="typeCheat('HOPINGIRL')">路人上车</button>
-            <button class="cheat-btn" onclick="typeCheat('GREENLIGHT')">全局绿灯</button>
-            <button class="cheat-btn" onclick="typeCheat('MIAMITRAFFIC')">车辆行驶加速</button>
-            <button class="cheat-btn" onclick="typeCheat('ICANTTAKEITANYMORE')">自杀</button>
+
+        <div class="ce-section">
+            <div class="ce-label">手动操作</div>
+            <div style="display: flex; gap: 4px;">
+                <input type="text" id="ce-manual-addr" placeholder="0x地址" style="flex: 1;">
+                <button id="ce-view-addr">查看</button>
+            </div>
+            <div id="ce-manual-results" style="font-size: 10px; display: none;"></div>
         </div>
-    
-        <div class="cheat-cat">角色皮肤</div>  <!-- 角色皮肤 -->
-        <div class="cheat-grid">
-            <button class="cheat-btn" onclick="typeCheat('STILLLIKEDRESSINGUP')">随机皮肤</button>
-            <button class="cheat-btn" onclick="typeCheat('IDONTHAVETHEMONEYSONNY')">桑尼皮肤</button>
-            <button class="cheat-btn" onclick="typeCheat('LOOKLIKELANCE')">兰斯皮肤</button>
-            <button class="cheat-btn" onclick="typeCheat('ILOOKLIKEHILARY')">希拉里皮肤</button>
-            <button class="cheat-btn" onclick="typeCheat('ROCKANDROLLMAN')">杰斯皮肤</button>
-            <button class="cheat-btn" onclick="typeCheat('WELOVEOURDICK')">迪克皮肤</button>
-            <button class="cheat-btn" onclick="typeCheat('MYSONISALAWYER')">肯皮肤</button>
-            <button class="cheat-btn" onclick="typeCheat('ONEARMEDBANDIT')">菲尔皮肤</button>
-            <button class="cheat-btn" onclick="typeCheat('FOXYLITTLETHING')">梅赛德斯皮肤</button>
-            <button class="cheat-btn" onclick="typeCheat('CHEATSHAVEBEENCRACKED')">迪亚兹皮肤</button>
-            <button class="cheat-btn" onclick="typeCheat('IWANTBIGTITS')">坎迪皮肤</button>
-            <button class="cheat-btn" onclick="typeCheat('CERTAINDEATH')">叼烟造型</button>
-            <button class="cheat-btn" onclick="typeCheat('DEEPFRIEDMARSBARS')">汤米（肥胖版）</button>
-            <button class="cheat-btn" onclick="typeCheat('PROGRAMMER')">汤米（消瘦版）</button>
+
+        <div class="ce-section">
+            <div class="ce-label">快速操作</div>
+            
+            <div class="switch-container">
+                <span class="switch-label">空中漫步（右Shift）</span>
+                <label class="switch">
+                    <input type="checkbox" id="ce-toggle-airbreak">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="switch-container">
+                <span class="switch-label">无敌模式（无限生命值）</span>
+                <label class="switch">
+                    <input type="checkbox" id="ce-toggle-godmode">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <button id="ce-add-money" class="money-btn">+9999999金钱</button>
+            
+            <div style="display: flex; gap: 4px; margin-top: 4px; align-items: center;">
+                <span style="font-size: 10px; color: #888;">飞行速度：</span>
+                <input type="number" id="ce-fly-speed" value="2.0" step="0.5" min="0.1" max="50" style="width: 60px;">
+            </div>
+            <div id="ce-airbreak-status" style="font-size: 10px; color: #888;">就绪</div>
+            <div id="ce-pos-display" style="font-size: 9px; color: #666;"></div>
         </div>
-    
-        <div class="cheat-cat">载具召唤</div>  <!-- 载具召唤 -->
-        <div class="cheat-grid">
-            <button class="cheat-btn" onclick="typeCheat('PANZER')">召唤坦克</button>
-            <button class="cheat-btn" onclick="typeCheat('GETTHEREFAST')">召唤猎豹跑车</button>
-            <button class="cheat-btn" onclick="typeCheat('GETTHEREQUICKLY')">召唤血腥赛车A</button>
-            <button class="cheat-btn" onclick="typeCheat('TRAVELINSTYLE')">召唤血腥赛车B</button>
-            <button class="cheat-btn" onclick="typeCheat('GETTHEREVERYFASTINDEED')">召唤热环赛车A</button>
-            <button class="cheat-btn" onclick="typeCheat('GETTHEREAMAZINGLYFAST')">召唤热环赛车B</button>
-            <button class="cheat-btn" onclick="typeCheat('THELASTRIDE')">召唤灵车</button>
-            <button class="cheat-btn" onclick="typeCheat('ROCKANDROLLCAR')">召唤豪华轿车</button>
-            <button class="cheat-btn" onclick="typeCheat('BETTERTHANWALKING')">召唤高尔夫球车</button>
-            <button class="cheat-btn" onclick="typeCheat('RUBBISHCAR')">召唤垃圾车</button>
+
+        <div class="ce-section">
+            <div class="ce-label">作弊码</div>
+            
+            <div class="cheat-cat">武器与生命值</div>
+            <div class="cheat-grid">
+                <button class="cheat-btn" onclick="typeCheat('THUGSTOOLS')">初级武器</button>
+                <button class="cheat-btn" onclick="typeCheat('PROFESSIONALTOOLS')">中级武器</button>
+                <button class="cheat-btn" onclick="typeCheat('NUTTERTOOLS')">高级武器</button>
+                <button class="cheat-btn" onclick="typeCheat('FULLCLIP')">无限子弹</button>
+                <button class="cheat-btn" onclick="typeCheat('ASPIRINE')">恢复生命值</button>
+                <button class="cheat-btn" onclick="typeCheat('PRECIOUSPROTECTION')">恢复护甲</button>
+            </div>
+
+            <div class="cheat-cat">游戏玩法</div>
+            <div class="cheat-grid">
+                <button class="cheat-btn" onclick="typeCheat('LEAVEMEALONE')">消除通缉</button>
+                <button class="cheat-btn" onclick="typeCheat('YOUWONTTAKEMEALIVE')">通缉等级+2</button>
+                <button class="cheat-btn" onclick="typeCheat('ONSPEED')">快速游戏</button>
+                <button class="cheat-btn" onclick="typeCheat('BOOOOOORING')">游戏减速</button>
+                <button class="cheat-btn" onclick="typeCheat('LIFEISPASSINGMEBY')">时间流逝加速</button>
+                <button class="cheat-btn" onclick="typeCheat('BIGBANG')">周边车辆爆炸</button>
+                <button class="cheat-btn" onclick="typeCheat('FIGHTFIGHTFIGHT')">路人互殴</button>
+                <button class="cheat-btn" onclick="typeCheat('NOBODYLIKESME')">路人攻击你</button>
+                <button class="cheat-btn" onclick="typeCheat('OURGODGIVENRIGHTTOBEARARMS')">路人全员持械</button>
+                <button class="cheat-btn" onclick="typeCheat('CHICKSWITHGUNS')">女性路人持械</button>
+                <button class="cheat-btn" onclick="typeCheat('FANNYMAGNET')">魅力四射（女性主动靠近）</button>
+                <button class="cheat-btn" onclick="typeCheat('HOPINGIRL')">路人上车</button>
+                <button class="cheat-btn" onclick="typeCheat('GREENLIGHT')">绿灯常亮</button>
+                <button class="cheat-btn" onclick="typeCheat('MIAMITRAFFIC')">车辆行驶加速</button>
+                <button class="cheat-btn" onclick="typeCheat('ICANTTAKEITANYMORE')">自杀</button>
+            </div>
+
+            <div class="cheat-cat">皮肤</div>
+            <div class="cheat-grid">
+                <button class="cheat-btn" onclick="typeCheat('STILLLIKEDRESSINGUP')">随机皮肤</button>
+                <button class="cheat-btn" onclick="typeCheat('IDONTHAVETHEMONEYSONNY')">桑尼</button>
+                <button class="cheat-btn" onclick="typeCheat('LOOKLIKELANCE')">兰斯</button>
+                <button class="cheat-btn" onclick="typeCheat('ILOOKLIKEHILARY')">希拉里</button>
+                <button class="cheat-btn" onclick="typeCheat('ROCKANDROLLMAN')">杰兹</button>
+                <button class="cheat-btn" onclick="typeCheat('WELOVEOURDICK')">迪克</button>
+                <button class="cheat-btn" onclick="typeCheat('MYSONISALAWYER')">肯</button>
+                <button class="cheat-btn" onclick="typeCheat('ONEARMEDBANDIT')">菲尔</button>
+                <button class="cheat-btn" onclick="typeCheat('FOXYLITTLETHING')">梅赛德斯</button>
+                <button class="cheat-btn" onclick="typeCheat('CHEATSHAVEBEENCRACKED')">迪亚兹</button>
+                <button class="cheat-btn" onclick="typeCheat('IWANTBIGTITS')">坎迪</button>
+                <button class="cheat-btn" onclick="typeCheat('CERTAINDEATH')">吸烟</button>
+                <button class="cheat-btn" onclick="typeCheat('DEEPFRIEDMARSBARS')">胖体态</button>
+                <button class="cheat-btn" onclick="typeCheat('PROGRAMMER')">瘦体态</button>
+            </div>
+
+            <div class="cheat-cat">载具</div>
+            <div class="cheat-grid">
+                <button class="cheat-btn" onclick="typeCheat('PANZER')">坦克</button>
+                <button class="cheat-btn" onclick="typeCheat('GETTHEREFAST')">Sabre Turbo跑车</button>
+                <button class="cheat-btn" onclick="typeCheat('GETTHEREQUICKLY')">Bloodring A赛车</button>
+                <button class="cheat-btn" onclick="typeCheat('TRAVELINSTYLE')">Bloodring B赛车</button>
+                <button class="cheat-btn" onclick="typeCheat('GETTHEREVERYFASTINDEED')">Hotring A赛车</button>
+                <button class="cheat-btn" onclick="typeCheat('GETTHEREAMAZINGLYFAST')">Hotring B赛车</button>
+                <button class="cheat-btn" onclick="typeCheat('THELASTRIDE')">灵车</button>
+                <button class="cheat-btn" onclick="typeCheat('ROCKANDROLLCAR')">豪华轿车</button>
+                <button class="cheat-btn" onclick="typeCheat('BETTERTHANWALKING')">高尔夫球车</button>
+                <button class="cheat-btn" onclick="typeCheat('RUBBISHCAR')">垃圾车</button>
+            </div>
+
+            <div class="cheat-cat">飞机</div>
+            <div class="cheat-grid">
+                <button class="cheat-btn" onclick="typeCheat('OHDUDE')">阿帕奇直升机</button>
+                <button class="cheat-btn" onclick="typeCheat('SEAPLANE')">水上飞机</button>
+            </div>
+
+            <div class="cheat-cat">载具效果</div>
+            <div class="cheat-grid">
+                <button class="cheat-btn" onclick="typeCheat('COMEFLYWITHME')">车辆飞行</button>
+                <button class="cheat-btn" onclick="typeCheat('AIRSHIP')">船只飞行</button>
+                <button class="cheat-btn" onclick="typeCheat('SEAWAYS')">水上行驶</button>
+                <button class="cheat-btn" onclick="typeCheat('WHEELSAREALLINEED')">仅显车轮</button>
+                <button class="cheat-btn" onclick="typeCheat('GRIPISEVERYTHING')">完美操控</button>
+                <button class="cheat-btn" onclick="typeCheat('IWANTITPAINTEDBLACK')">车辆变黑</button>
+                <button class="cheat-btn" onclick="typeCheat('AHAIRDRESSERSCAR')">车辆变粉</button>
+                <button class="cheat-btn" onclick="typeCheat('LOADSOFLITTLETHINGS')">载具车轮缩小</button>
+                <button class="cheat-btn" onclick="typeCheat('SPEEDFREAK')">车辆获得氮气加速</button>
+            </div>
+
+            <div class="cheat-cat">天气</div>
+            <div class="cheat-grid">
+                <button class="cheat-btn" onclick="typeCheat('ALOVELYDAY')">阳光明媚</button>
+                <button class="cheat-btn" onclick="typeCheat('APLEASANTDAY')">多云</button>
+                <button class="cheat-btn" onclick="typeCheat('ABITDRIEG')">阴云密布</button>
+                <button class="cheat-btn" onclick="typeCheat('CATSANDDOGS')">倾盆大雨</button>
+                <button class="cheat-btn" onclick="typeCheat('CANTSEEATHING')">大雾弥漫</button>
+            </div>
         </div>
-    
-        <div class="cheat-cat">载具特效</div>  <!-- 载具特效 -->
-        <div class="cheat-grid">
-            <button class="cheat-btn" onclick="typeCheat('COMEFLYWITHME')">车辆可飞行</button>
-            <button class="cheat-btn" onclick="typeCheat('AIRSHIP')">船只可飞行</button>
-            <button class="cheat-btn" onclick="typeCheat('SEAWAYS')">车辆可水上行驶</button>
-            <button class="cheat-btn" onclick="typeCheat('WHEELSAREALLINEED')">车辆只剩车轮</button>
-            <button class="cheat-btn" onclick="typeCheat('GRIPISEVERYTHING')">载具完美操控</button>
-            <button class="cheat-btn" onclick="typeCheat('IWANTITPAINTEDBLACK')">所有车辆变黑</button>
-            <button class="cheat-btn" onclick="typeCheat('AHAIRDRESSERSCAR')">所有车辆变粉</button>
-            <button class="cheat-btn" onclick="typeCheat('LOADSOFLITTLETHINGS')">载具车轮缩小</button>
-        </div>
-    
-        <div class="cheat-cat">天气控制</div>  <!-- 天气控制 -->
-        <div class="cheat-grid">
-            <button class="cheat-btn" onclick="typeCheat('ALOVELYDAY')">晴天</button>
-            <button class="cheat-btn" onclick="typeCheat('APLEASANTDAY')">多云</button>
-            <button class="cheat-btn" onclick="typeCheat('ABITDRIEG')">阴天</button>
-            <button class="cheat-btn" onclick="typeCheat('CATSANDDOGS')">雨天</button>
-            <button class="cheat-btn" onclick="typeCheat('CANTSEEATHING')">大雾天</button>
-        </div>
-    </div>
     `;
     document.body.appendChild(ui);
 
@@ -429,8 +519,9 @@
     let lastBuffer = null; // Track buffer for detachment detection
     
     // AirBreak state
-    let airbreakEnabled = false;
+    let airbreakEnabled = false;        // Whether currently flying
     let airbreakConfigured = false;
+    let airbreakShiftAllowed = false;   // Whether RShift can toggle airbreak
     let playerMatrixAddr = 0;
     let flySpeed = 2.0;
     let keysPressed = { w: false, s: false, a: false, d: false, space: false, shift: false };
@@ -1049,17 +1140,51 @@
     let moveSpeedAddr = 0;  // MoveSpeed X address (Y at +4, Z at +8)
     let lockedZ = 0;        // Locked Z value when airbreak enabled
     let lockedHealth = 100; // Locked health value
+    let godModeEnabled = false;
+    let moneyAddr = 0;      // Money address
     
-    function setupAirbreak() {
-        const healthAddrStr = document.getElementById('ce-health-addr').value;
-        healthAddr = parseInt(healthAddrStr, 16);
+    // Static addresses for GTA VC
+    // Money handle: EN=0x361c50, RU=0x361c60
+    // PED_ADDR = read_I32(money_handle - 0xA0)
+    // HEALTH = PED_ADDR + 0x350
+    function getStaticAddresses() {
         const view = getView();
         const bufLen = view.buffer.byteLength;
         
-        if (isNaN(healthAddr) || healthAddr < 0x400 || healthAddr >= bufLen) {
-            document.getElementById('ce-airbreak-status').textContent = 'Invalid health address';
-            return;
+        // Detect language and get money handle address
+        const isRu = typeof currentLanguage !== 'undefined' && currentLanguage === 'ru';
+        const moneyHandleAddr = isRu ? 0x361c60 : 0x361c50;
+        
+        if (moneyHandleAddr >= bufLen - 4) return null;
+        
+        // Money is at moneyHandleAddr
+        moneyAddr = moneyHandleAddr;
+        
+        // PED_ADDR = read_I32(money_handle - 0xA0)
+        const pedPtrAddr = moneyHandleAddr - 0xA0;
+        if (pedPtrAddr < 0 || pedPtrAddr >= bufLen - 4) return null;
+        
+        const pedAddr = view.getInt32(pedPtrAddr, true);
+        if (pedAddr <= 0 || pedAddr >= bufLen - 0x400) return null;
+        
+        // Health = PED_ADDR + 0x350
+        const hpAddr = pedAddr + 0x350;
+        if (hpAddr < 0 || hpAddr >= bufLen - 4) return null;
+        
+        return { pedAddr, healthAddr: hpAddr, moneyAddr: moneyHandleAddr };
+    }
+    
+    function setupAirbreak() {
+        const addrs = getStaticAddresses();
+        if (!addrs) {
+            document.getElementById('ce-airbreak-status').textContent = 'Failed to find addresses';
+            document.getElementById('ce-airbreak-status').style.color = '#f00';
+            return false;
         }
+        
+        healthAddr = addrs.healthAddr;
+        const view = getView();
+        const bufLen = view.buffer.byteLength;
         
         // Calculate addresses:
         // Position: healthAddr - 0x354 + 0x04 + 0x34 = healthAddr - 0x31C
@@ -1121,6 +1246,134 @@
         airbreakConfigured = true;
         
         updatePositionDisplay();
+        return true;
+    }
+    
+    // Toggle GodMode
+    function toggleGodMode(e) {
+        const checkbox = document.getElementById('ce-toggle-godmode');
+        
+        // If triggered by event, use checkbox state
+        if (e && e.target === checkbox) {
+            godModeEnabled = checkbox.checked;
+        } else {
+            // If triggered programmatically, toggle and update checkbox
+            godModeEnabled = !godModeEnabled;
+            checkbox.checked = godModeEnabled;
+        }
+
+        const addrs = getStaticAddresses();
+        if (!addrs) {
+            document.getElementById('ce-airbreak-status').textContent = 'Failed to find HP address';
+            document.getElementById('ce-airbreak-status').style.color = '#f00';
+            // Revert if failed
+            if (godModeEnabled) {
+                godModeEnabled = false;
+                checkbox.checked = false;
+            }
+            return;
+        }
+        
+        // If disabling GodMode, reset HP from 999 to 100
+        if (!godModeEnabled) {
+            const view = getView();
+            try {
+                view.setFloat32(addrs.healthAddr, 100.0, true);
+            } catch(e) {}
+        }
+        
+        document.getElementById('ce-airbreak-status').textContent = godModeEnabled ? 'GodMode ON - Infinite HP' : 'GodMode OFF (HP reset to 100)';
+        document.getElementById('ce-airbreak-status').style.color = godModeEnabled ? '#0f0' : '#888';
+    }
+    
+    // GodMode tick - runs constantly to keep HP at max
+    function godModeTick() {
+        if (!godModeEnabled) return;
+        
+        const addrs = getStaticAddresses();
+        if (!addrs) return;
+        
+        const view = getView();
+        try {
+            view.setFloat32(addrs.healthAddr, 999.0, true);
+        } catch(e) {}
+    }
+    
+    // Add money
+    function addMoney() {
+        const addrs = getStaticAddresses();
+        if (!addrs) {
+            document.getElementById('ce-airbreak-status').textContent = 'Failed to find money address';
+            document.getElementById('ce-airbreak-status').style.color = '#f00';
+            return;
+        }
+        
+        const view = getView();
+        try {
+            const currentMoney = view.getInt32(addrs.moneyAddr, true);
+            view.setInt32(addrs.moneyAddr, currentMoney + 9999999, true);
+            document.getElementById('ce-airbreak-status').textContent = '+$9999999 added!';
+            document.getElementById('ce-airbreak-status').style.color = '#ffd700';
+        } catch(e) {
+            document.getElementById('ce-airbreak-status').textContent = 'Failed to add money';
+            document.getElementById('ce-airbreak-status').style.color = '#f00';
+        }
+    }
+    
+    // Toggle AirBrake availability (whether RShift can trigger it)
+    function toggleAirBrake(e) {
+        const checkbox = document.getElementById('ce-toggle-airbreak');
+        
+        // If triggered by event, use checkbox state
+        if (e && e.target === checkbox) {
+            airbreakShiftAllowed = checkbox.checked;
+        } else {
+            // If triggered programmatically, toggle and update checkbox
+            airbreakShiftAllowed = !airbreakShiftAllowed;
+            checkbox.checked = airbreakShiftAllowed;
+        }
+        
+        // If disabling, also stop flying
+        if (!airbreakShiftAllowed && airbreakEnabled) {
+            airbreakEnabled = false;
+            document.getElementById('ce-airbreak-status').textContent = 'AirBreak disabled';
+            document.getElementById('ce-airbreak-status').style.color = '#888';
+        } else if (airbreakShiftAllowed) {
+            // Setup if needed when enabling
+            if (!airbreakConfigured) {
+                setupAirbreak();
+            }
+            document.getElementById('ce-airbreak-status').textContent = 'AirBreak enabled (RShift to fly)';
+            document.getElementById('ce-airbreak-status').style.color = '#0f0';
+        } else {
+            document.getElementById('ce-airbreak-status').textContent = 'AirBreak disabled';
+            document.getElementById('ce-airbreak-status').style.color = '#888';
+        }
+    }
+    
+    // Toggle actual flying state (called by RShift)
+    function toggleFlying() {
+        if (!airbreakShiftAllowed) return false;
+        
+        if (!airbreakConfigured) {
+            if (!setupAirbreak()) {
+                return false;
+            }
+        }
+        
+        airbreakEnabled = !airbreakEnabled;
+        
+        if (airbreakEnabled) {
+            const view = getView();
+            lockedZ = view.getFloat32(positionAddr + 8, true);
+            lockedHealth = view.getFloat32(healthAddr, true);
+        }
+        
+        document.getElementById('ce-airbreak-status').textContent = airbreakEnabled ?
+            `FLYING! Z=${lockedZ.toFixed(1)}` : 'AirBreak enabled (RShift to fly)';
+        document.getElementById('ce-airbreak-status').style.color = airbreakEnabled ? '#ff0' : '#0f0';
+        
+        return true;
     }
     
     function updatePositionDisplay() {
@@ -1218,25 +1471,9 @@
     // Track movement keys for airbreak (works even when menu closed)
     window.addEventListener('keydown', (e) => {
         if (e.key === 'ShiftRight' || (e.key === 'Shift' && e.location === 2)) {
-            // Right Shift - toggle airbreak
-            if (airbreakConfigured) {
-                airbreakEnabled = !airbreakEnabled;
-                
-                if (airbreakEnabled) {
-                    // Capture current Z and HP when enabling
-                    const view = getView();
-                    lockedZ = view.getFloat32(positionAddr + 8, true);
-                    lockedHealth = view.getFloat32(healthAddr, true);
-                    console.log(`[AirBreak] ENABLED - Locked Z=${lockedZ.toFixed(2)}, HP=${lockedHealth.toFixed(2)}`);
-                }
-                
-                document.getElementById('ce-airbreak-status').textContent =
-                    airbreakEnabled ?
-                    `FLYING! Z=${lockedZ.toFixed(1)} HP=${lockedHealth.toFixed(0)}` :
-                    `Ready! [RShift to fly]`;
-                document.getElementById('ce-airbreak-status').style.color = airbreakEnabled ? '#ff0' : '#0f0';
-                console.log('[AirBreak]', airbreakEnabled ? 'ENABLED' : 'DISABLED');
-            }
+            // Right Shift - toggle flying only if airbreak is allowed
+            if (!airbreakShiftAllowed) return;
+            toggleFlying();
             return;
         }
         
@@ -1264,10 +1501,13 @@
     
     // AirBreak update loop
     setInterval(airbreakTick, 16); // ~60fps
+    setInterval(godModeTick, 100); // GodMode tick
     setInterval(updatePositionDisplay, 100);
     
-    // Setup button handler
-    document.getElementById('ce-setup-airbreak').onclick = setupAirbreak;
+    // Toggle button handlers
+    document.getElementById('ce-toggle-airbreak').onchange = toggleAirBrake;
+    document.getElementById('ce-toggle-godmode').onchange = toggleGodMode;
+    document.getElementById('ce-add-money').onclick = addMoney;
     document.getElementById('ce-fly-speed').onchange = () => {
         flySpeed = parseFloat(document.getElementById('ce-fly-speed').value) || 2.0;
     };
@@ -1289,7 +1529,15 @@
         
         // Update visibility of touch controls based on airbreak state
         function updateTouchControlsVisibility() {
-            if (airbreakConfigured && airbreakEnabled) {
+            // Hide all touch controls when menu is open
+            if (menuOpen) {
+                airbreakTouchControls.classList.remove('active');
+                verticalBtns.style.display = 'none';
+                flyToggleBtn.classList.remove('visible');
+                return;
+            }
+            
+            if (airbreakConfigured && airbreakEnabled && airbreakShiftAllowed) {
                 airbreakTouchControls.classList.add('active');
                 verticalBtns.style.display = 'flex';
             } else {
@@ -1297,8 +1545,8 @@
                 verticalBtns.style.display = 'none';
             }
             
-            // Show fly toggle button when configured
-            if (airbreakConfigured) {
+            // Show fly toggle button only when airbreak is allowed (toggle is ON)
+            if (airbreakConfigured && airbreakShiftAllowed) {
                 flyToggleBtn.classList.add('visible');
                 flyToggleBtn.classList.toggle('active', airbreakEnabled);
                 flyToggleBtn.textContent = airbreakEnabled ? 'STOP' : 'FLY';
@@ -1498,14 +1746,6 @@
         downBtn.addEventListener('touchcancel', () => {
             keysPressed.shift = false;
         });
-        
-        // Monitor airbreak state changes
-        const originalSetupAirbreak = setupAirbreak;
-        setupAirbreak = function() {
-            originalSetupAirbreak();
-            updateTouchControlsVisibility();
-        };
-        document.getElementById('ce-setup-airbreak').onclick = setupAirbreak;
         
         // Update controls visibility periodically
         setInterval(updateTouchControlsVisibility, 500);
