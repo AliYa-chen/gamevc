@@ -29,7 +29,7 @@ watch(
 <template>
   <div class="emscripten w-full h-full text-white" @click="enterGame">
     <!-- 视频背景 -->
-    <div v-if="game.ready && !game.loading && showIntro" class="absolute inset-0 w-full h-full intro-container">
+    <div v-if="game.ready && !game.loading && showIntro" class="absolute inset-0 w-full h-full intro-container z-50">
       <video class="absolute inset-0 w-full h-full intro" src="/assets/video/intro.mp4" autoplay playsinline></video>
       <div class="flex pointer-events-none absolute inset-x-0 bottom-0 p-4 sm:p-5 justify-center">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><a
