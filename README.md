@@ -1,4 +1,4 @@
-# EdgeOne Pages | GTA Vice City — HTML5 Port (DOS Zone)
+# EdgeOne Pages | GTA Vice City — VUE3 Port (DOS Zone)
 
 This project supports one click deployment of EdgeOnePages; Support pure Nodejs environment, no need for PHP and Python
 
@@ -42,6 +42,6 @@ MIT. Do what you want (but credit the port authors and me). Not affiliated with 
 
 **Authors:** DOS Zone ([@specialist003](https://github.com/okhmanyuk-ev), [@caiiiycuk](https://www.youtube.com/caiiiycuk), [@SerGen](https://t.me/ser_var))
 
-**Enhance HTML5 by**: [@Aliya-chen](https://github.com/AliYa-chen)
+**Enhance VUE3 by**: [@Aliya-chen](https://github.com/AliYa-chen)
 
 ### Please bring my GitHub link when using this project. Thank you very much
