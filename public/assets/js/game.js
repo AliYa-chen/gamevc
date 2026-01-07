@@ -37,9 +37,7 @@ window.VCSKY.setConfig = function (cfg = {}) {
 
 
 // Base URLs
-const replaceFetch = (str) => str.replace("https://cdn.dos.zone/vcsky/", "vcsky/")
 const replaceBR = "https://cdn.nbcnm.cn/vcbr/"
-// const replaceBR = "/gtadata/vcsky/"
 
 // Settings that can be configured via URL or UI
 let autoFullScreen = params.get('fullscreen') !== "0";
