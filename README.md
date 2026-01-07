@@ -12,6 +12,8 @@ Live Demo: https://gtavc.nbcnm.cn
 
 ## There are currently three branches
 
+`newvue branch`: A project refactored using Vue3
+
 `main branch`: Dev code, with frequent updates
 
 `prod branch`: It is the branch where I am currently running Demo link, deploying vcbr game files using CDN.
@@ -25,7 +27,7 @@ Live Demo: https://gtavc.nbcnm.cn
 
 Support VSCode plugin Live Server for quick debugging and running
 
-Open [http://localhost:5500](http://localhost:5500) with your browser to see the result.
+Open [http://localhost:8099](http://localhost:8099) with your browser to see the result.
 
 
 ## Create edgeone pages
@@ -41,3 +43,5 @@ MIT. Do what you want (but credit the port authors and me). Not affiliated with 
 **Authors:** DOS Zone ([@specialist003](https://github.com/okhmanyuk-ev), [@caiiiycuk](https://www.youtube.com/caiiiycuk), [@SerGen](https://t.me/ser_var))
 
 **Enhance HTML5 by**: [@Aliya-chen](https://github.com/AliYa-chen)
+
+### Please bring my GitHub link when using this project. Thank you very much
