@@ -43,7 +43,7 @@ const replaceBR = "https://cdn.nbcnm.cn/vcbr/"
 
 // Settings that can be configured via URL or UI
 let autoFullScreen = params.get('fullscreen') !== "0";
-let cheatsEnabled = params.get('cheats') === "1";
+let cheatsEnabled = false;
 let maxFPS = parseInt(params.get('max_fps')) || 0;
 
 // full game access
@@ -213,7 +213,7 @@ async function loadGame(data) {
         },
         preRun: [],
         postRun: [],
-        print: (...args) => console.log(args.join(' ')),
+        print: (...args) => null,
         printErr: (...args) => console.error(args.join(' ')),
         getPreloadedPackage: () => {
             return data.buffer;

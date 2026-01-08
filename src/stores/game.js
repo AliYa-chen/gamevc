@@ -1,6 +1,26 @@
 import { defineStore } from 'pinia'
 import FALLBACK_I18N from '@/i18n'
 
+function normalizeLang(lang) {
+  const l = String(lang || '').toLowerCase()
+  if (l.startsWith('zh')) return 'zh'
+  if (l.startsWith('ru')) return 'ru'
+  return 'en'
+}
+
+function detectLocalLang() {
+  // localStorage 有就用 localStorage（你本来就是 saved.language 优先）
+  const nav = navigator.language || navigator.userLanguage || 'en'
+  return normalizeLang(nav)
+}
+
+function getByPath(obj, path) {
+  if (!obj || !path) return undefined
+  return path.split('.').reduce((o, k) => (o && o[k] != null ? o[k] : undefined), obj)
+}
+
+
+
 function loadScriptOnce(src) {
   return new Promise((resolve, reject) => {
     if ([...document.scripts].some(s => s.src.includes(src))) {
@@ -38,7 +58,7 @@ export const useGameStore = defineStore('game', {
       ready: false,
       progress: 0,
 
-      language: saved.language || 'zh',   // 从缓存读取
+      language: normalizeLang(saved.language || detectLocalLang()),
       cheats: saved.cheats ?? false,
       fullscreen: saved.fullscreen ?? true,
       maxFPS: saved.maxFPS ?? 0,
@@ -114,7 +134,18 @@ export const useGameStore = defineStore('game', {
   getters: {
     t: (state) => (key) => {
       if (window.VCSKY?.t) return window.VCSKY.t(key)
-      return FALLBACK_I18N[state.language]?.[key] || key
+
+      const lang = normalizeLang(state.language)
+      const dict = FALLBACK_I18N[lang] || FALLBACK_I18N.en
+
+      // 支持两种：嵌套 key（CheatMenu.Title）和扁平 key（StartGame）
+      const val =
+        getByPath(dict, key) ??
+        dict?.[key] ??
+        getByPath(FALLBACK_I18N.en, key) ??
+        FALLBACK_I18N.en?.[key]
+
+      return val != null ? String(val) : key
     },
   },
 })
