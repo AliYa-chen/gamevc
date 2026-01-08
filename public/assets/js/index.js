@@ -9,13 +9,8 @@
         'assets/modules/events.js',
         'assets/modules/fetch.js',
         (currentLanguage === 'ru' ? 'assets/modules/asm_consts/ru.js' : 'assets/modules/asm_consts/en.js'),
-        // 'assets/modules/cheats.js',
         'assets/modules/main.js'
     ];
-
-    if (cheatsEnabled)
-        modules.push('assets/modules/cheats.js');
-
     if (typeof importScripts === 'function') {
         importScripts.apply(null, modules);
     } else {

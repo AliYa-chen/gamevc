@@ -1,6 +1,7 @@
 <script setup>
 import Sidebar from '@/components/Sidebar.vue'
 import GameShowcase from '@/components/GameShowcase.vue'
+import CheatPanel from '@/components/CheatPanel.vue'
 import { useGameStore } from '@/stores/game'
 
 const game = useGameStore()
@@ -33,4 +34,5 @@ const imgSrc = new URL('@/assets/img/Vice_City_1.jpg', import.meta.url).href
     </main>
   </div>
   <GameCanvas v-show="game.started" />
+  <CheatPanel v-show="game.engineReady" />
 </template>
